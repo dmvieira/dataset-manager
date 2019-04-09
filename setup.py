@@ -12,6 +12,7 @@ setup(
     version="0.0.3",
     description="Manage and automatize datasets for data science projects.",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author="Diogo Munaro Vieira",
     author_email="diogo.mvieira@gmail.com",
     license='Apache 2',
