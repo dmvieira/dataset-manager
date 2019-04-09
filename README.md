@@ -4,6 +4,8 @@ Manage and automatize your datasets for your project with YAML files.
 
 Create a file *name.yaml* with content in your dataset directory:
 
+[![Build Status](https://travis-ci.com/dmvieira/dataset-manager.svg?branch=master)](https://travis-ci.com/dmvieira/dataset-manager)
+
 ```
 name: your_dataset_name
 
