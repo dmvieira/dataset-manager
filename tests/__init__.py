@@ -45,13 +45,13 @@ class TestDatasetManager(unittest.TestCase):
 
         data = DatasetManager("./tests/resources/local_data")
         df = pd.read_csv("./tests/resources/local_data/train.csv")
-        self.assertEqual(data.get_dataset("local_test").to_dict(), df.to_dict())
+        self.assertDictEqual(data.get_dataset("local_test").to_dict(), df.to_dict())
     
     def test_should_get_dataset_zipped(self):
 
         data = DatasetManager("./tests/resources/local_data")
         df = pd.read_csv("./tests/resources/local_data/train.csv")
-        self.assertEqual(data.get_dataset("local_zip_test").to_dict(), df.to_dict())
+        self.assertDictEqual(data.get_dataset("local_zip_test").to_dict(), df.to_dict())
 
     def test_should_get_dataset_unknown_format(self):
 
