@@ -39,7 +39,7 @@ class TestDatasetManager(unittest.TestCase):
         ])
 
         data = DatasetManager("./tests/resources/multiple_data")
-        self.assertDictEqual(data.list_datasets().to_dict(), expected.to_dict())
+        self.assertDictEqual(data.list_datasets().sort_values("name").to_dict(), expected.sort_values("name").to_dict())
 
     def test_should_get_dataset(self):
 
