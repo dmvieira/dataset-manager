@@ -9,7 +9,7 @@ Current Support: [![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg
 
 ## How it Works
 
-Create a file *name.yaml* with content in your dataset directory:
+This project create a file called *name.yaml* in your dataset directory with these fields:
 
 ```
 src: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv
