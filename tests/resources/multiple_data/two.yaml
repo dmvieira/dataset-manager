@@ -1,0 +1,4 @@
+name: two_test
+src: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv
+description: my little dataset 2
+format: csv
