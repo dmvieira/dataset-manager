@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="dataset_manager",
-    version="0.0.1",
-    description="manage datasets for data science studies.",
+    version="0.0.2",
+    description="Manage and automatize datasets for data science projects.",
     author="Diogo Munaro Vieira",
     author_email="diogo.mvieira@gmail.com",
-    license='MIT',
+    license='Apache 2',
     install_requires=[
         "PyYAML==5.1",
         "pandas>=0.19.2"
