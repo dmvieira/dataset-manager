@@ -27,6 +27,8 @@ Each dataset is a YAML file inside dataset directory.
 List all Datasets
 *****************
 
+    from dataset_manager import DatasetManager
+
     manager = DatasetManager(dataset_path)
 
     manager.list_datasets() ## return a List with all datasets from dataset path
@@ -34,6 +36,8 @@ List all Datasets
 
 Get one Dataset
 ***************
+
+    from dataset_manager import DatasetManager
 
     manager = DatasetManager(dataset_path)
 
