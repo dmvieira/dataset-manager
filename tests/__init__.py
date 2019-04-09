@@ -2,6 +2,7 @@ import unittest
 import yaml
 import pandas as pd
 from dataset_manager import DatasetManager
+from pandas.util.testing import assert_frame_equal
 
 
 class TestDatasetManager(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestDatasetManager(unittest.TestCase):
         ])
 
         data = DatasetManager("./tests/resources/one_data")
-        self.assertDictEqual(data.list_datasets().to_dict(), expected.to_dict())
+        assert_frame_equal(data.list_datasets(), expected)
     
 
     def test_should_read_multiple_yaml_from_dir(self):
@@ -39,19 +40,19 @@ class TestDatasetManager(unittest.TestCase):
         ])
 
         data = DatasetManager("./tests/resources/multiple_data")
-        self.assertDictEqual(data.list_datasets().sort_values("name").to_dict(), expected.sort_values("name").to_dict())
+        assert_frame_equal(data.list_datasets().sort_values("name"), expected.sort_values("name"))
 
     def test_should_get_dataset(self):
 
         data = DatasetManager("./tests/resources/local_data")
         df = pd.read_csv("./tests/resources/local_data/train.csv")
-        self.assertDictEqual(data.get_dataset("local_test").to_dict(), df.to_dict())
+        assert_frame_equal(data.get_dataset("local_test"), df)
     
     def test_should_get_dataset_zipped(self):
 
         data = DatasetManager("./tests/resources/local_data")
         df = pd.read_csv("./tests/resources/local_data/train.csv")
-        self.assertDictEqual(data.get_dataset("local_zip_test").to_dict(), df.to_dict())
+        assert_frame_equal(data.get_dataset("local_zip_test"), df)
 
     def test_should_get_dataset_unknown_format(self):
 

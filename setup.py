@@ -17,7 +17,7 @@ setup(
     author_email="diogo.mvieira@gmail.com",
     license='Apache 2',
     install_requires=[
-        "PyYAML==5.1",
+        "PyYAML>=3.13",
         "pandas>=0.19.2"
     ],
     packages=find_packages(),
