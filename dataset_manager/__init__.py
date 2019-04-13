@@ -21,8 +21,7 @@ class DatasetManager(object):
         datasets = self.list_datasets()
         dataset = datasets[datasets.identifier == identifier]
         if dataset.shape[0] > 0:
-            dataset_source = dataset.source.values[0]
-            return dataset_source
+            return dataset.to_dict('records')[0]
         else:
             identifiers = self.__get_available_identifiers()
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))

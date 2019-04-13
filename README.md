@@ -59,7 +59,7 @@ manager.list_datasets()
 
 ### Get one Dataset
 
-Get Dataset *source*
+Get Dataset line as dict
 
 ```
 from dataset_manager import DatasetManager
