@@ -9,19 +9,19 @@ Current Support: [![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg
 
 ## How it Works
 
-This project create a file called *name.yaml* in your dataset directory with these fields:
+This project create a file called *identifier.yaml* in your dataset directory with these fields:
 
 ```
-src: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv
+source: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv
 
 description: this dataset is a test dataset
 
 format: csv
 ```
 
-*name*: is the name for dataset reference is the file name with *yaml* extension.
+*identifier*: is the identifier for dataset reference is the file name with *yaml* extension.
 
-*src*: is location from dataset.
+*source*: is location from dataset.
 
 *description*: describe your dataset to remember later.
 
@@ -68,7 +68,7 @@ from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.get_dataset(name, *args, **kwargs)
+manager.get_dataset(identifier, *args, **kwargs)
 ```
 
 ### Create a Dataset
@@ -80,7 +80,7 @@ from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.create_dataset(name, src, description, format_extension)
+manager.create_dataset(identifier, source, description, format_extension)
 ```
 
 ### Remove a Dataset
@@ -92,7 +92,7 @@ from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.remove_dataset(name)
+manager.remove_dataset(identifier)
 ```
 
 ## Contributing

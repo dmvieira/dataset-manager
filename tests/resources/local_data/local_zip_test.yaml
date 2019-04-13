@@ -1,3 +1,3 @@
-src: ./tests/resources/local_data/train.csv.zip
+source: ./tests/resources/local_data/train.csv.zip
 description: my little dataset local zip
 format: csv

@@ -20,8 +20,8 @@ class TestDatasetManager(unittest.TestCase):
 
         expected = pd.DataFrame([
             {
-                "name": "one_test",
-                "src": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
+                "identifier": "one_test",
+                "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
                 "description": "my little dataset",
                 "format": "csv"
             }
@@ -35,21 +35,21 @@ class TestDatasetManager(unittest.TestCase):
 
         expected = pd.DataFrame([
             {
-                "name": "one_test",
-                "src": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
+                "identifier": "one_test",
+                "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
                 "description": "my little dataset",
                 "format": "csv"
             },
             {
-                "name": "two_test",
-                "src": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
+                "identifier": "two_test",
+                "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
                 "description": "my little dataset 2",
                 "format": "csv"
             }
         ])
 
         data = DatasetManager("./tests/resources/multiple_data")
-        assert_frame_equal(data.list_datasets().sort_values("name").reset_index(drop=True), expected.sort_values("name").reset_index(drop=True))
+        assert_frame_equal(data.list_datasets().sort_values("identifier").reset_index(drop=True), expected.sort_values("identifier").reset_index(drop=True))
 
     def test_should_get_dataset(self):
 
@@ -71,36 +71,36 @@ class TestDatasetManager(unittest.TestCase):
     
     def test_should_create_dataset(self):
         data = DatasetManager(self.trash_dir)
-        name = "data_name"
+        identifier = "data_name"
         dataset = {
-            "name": name,
+            "identifier": identifier,
             "description": "description",
-            "src": "/tmp/test.csv",
+            "source": "/tmp/test.csv",
             "format_extension": "csv"
         }
         data.create_dataset(**dataset)
-        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, name)))
+        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
         loaded_dataset = data.list_datasets()
-        self.assertEqual(loaded_dataset.name.values[0], dataset["name"])
+        self.assertEqual(loaded_dataset.identifier.values[0], dataset["identifier"])
         self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
         self.assertEqual(loaded_dataset.format.values[0], dataset["format_extension"])
-        self.assertEqual(loaded_dataset.src.values[0], dataset["src"])
+        self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
 
     def test_should_remove_dataset(self):
         data = DatasetManager(self.trash_dir)
-        name = "data_name"
+        identifier = "data_name"
         dataset = {
-            "name": name,
+            "identifier": identifier,
             "description": "description",
-            "src": "/tmp/test.csv",
+            "source": "/tmp/test.csv",
             "format_extension": "csv"
         }
         data.create_dataset(**dataset)
-        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, name)))
+        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
-        data.remove_dataset(name)
-        self.assertFalse(os.path.isfile("{}/{}.yaml".format(self.trash_dir, name)))
+        data.remove_dataset(identifier)
+        self.assertFalse(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
         self.assertEqual(len(os.listdir(self.trash_dir)), 1)
 
     def test_should_remove_unknown_dataset(self):
