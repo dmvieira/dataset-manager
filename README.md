@@ -43,7 +43,7 @@ conda install dataset_manager
 
 ## Using
 
-You can manage your datasets with a list of commands and integrated with [Pandas](https://pandas.pydata.org/).
+You can manage your datasets with a list of commands and integrate with [Pandas](https://pandas.pydata.org/) or other data analysis tool.
 
 ### List all Datasets
 
@@ -71,14 +71,14 @@ manager.get_dataset(identifier)
 
 ### Create a Dataset
 
-Create a Dataset inside dataset_path defined
+Create a Dataset with every information you want inside dataset_path defined.
 
 ```
 from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.create_dataset(identifier, source, description)
+manager.create_dataset(identifier, source, description, **kwargs)
 ```
 
 ### Remove a Dataset

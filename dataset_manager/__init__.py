@@ -32,11 +32,12 @@ class DatasetManager(object):
         identifiers = ", ".join(datasets.identifier.values.tolist())
         return identifiers
 
-    def create_dataset(self, identifier, source, description):
+    def create_dataset(self, identifier, source, description, **kwargs):
         dataset = {
             "source": source,
             "description": description
         }
+        dataset.update(kwargs)
         dataset_path = os.path.join(self.__dataset_path, identifier)
         with open("{}.yaml".format(dataset_path), "w") as dataset_file:
             yaml.dump(dataset, dataset_file)

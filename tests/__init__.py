@@ -76,6 +76,25 @@ class TestDatasetManager(unittest.TestCase):
         self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
         self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
 
+    def test_should_create_dataset_with_custom_data(self):
+        data = DatasetManager(self.trash_dir)
+        identifier = "data_name_custom"
+        dataset = {
+            "identifier": identifier,
+            "description": "description",
+            "source": "/tmp/test.csv",
+            "format": "xls"
+        }
+        data.create_dataset(**dataset)
+        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
+        self.assertEqual(len(os.listdir(self.trash_dir)), 2)
+        loaded_dataset = data.list_datasets()
+        self.assertEqual(loaded_dataset.identifier.values[0], dataset["identifier"])
+        self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
+        self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
+        self.assertEqual(loaded_dataset.format.values[0], dataset["format"])
+
+
     def test_should_remove_dataset(self):
         data = DatasetManager(self.trash_dir)
         identifier = "data_name"
