@@ -17,22 +17,25 @@ class DatasetManager(object):
                     datasets.append(ds_metadata)
         return pd.DataFrame(datasets)
             
-    def get_dataset(self, identifier, *args, **kwargs):
+    def get_dataset(self, identifier):
         datasets = self.list_datasets()
         dataset = datasets[datasets.identifier == identifier]
-        dataset_format = dataset.format.values[0]
-        dataset_source = dataset.source.values[0]
-        read_function = "read_{}".format(dataset_format)
-        if read_function in dir(pd):
-            return eval("pd.{}".format(read_function))(dataset_source, *args, **kwargs)
+        if dataset.shape[0] > 0:
+            dataset_source = dataset.source.values[0]
+            return dataset_source
         else:
-            raise NotImplementedError("Pandas function {} not found".format(read_function))
+            identifiers = self.__get_available_identifiers()
+            raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
     
-    def create_dataset(self, identifier, source, description, format_extension):
+    def __get_available_identifiers(self):
+        datasets = self.list_datasets()
+        identifiers = ", ".join(datasets.identifier.values.tolist())
+        return identifiers
+
+    def create_dataset(self, identifier, source, description):
         dataset = {
             "source": source,
-            "description": description,
-            "format": format_extension
+            "description": description
         }
         dataset_path = os.path.join(self.__dataset_path, identifier)
         with open("{}.yaml".format(dataset_path), "w") as dataset_file:
@@ -43,6 +46,5 @@ class DatasetManager(object):
         if os.path.isfile("{}.yaml".format(dataset_path)):
             os.remove("{}.yaml".format(dataset_path))
         else:
-            datasets = self.list_datasets()
-            identifiers = ", ".join(datasets.identifier.values.tolist())
+            identifiers = self.__get_available_identifiers()
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))

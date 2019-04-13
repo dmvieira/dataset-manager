@@ -22,8 +22,7 @@ class TestDatasetManager(unittest.TestCase):
             {
                 "identifier": "one_test",
                 "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
-                "description": "my little dataset",
-                "format": "csv"
+                "description": "my little dataset"
             }
         ])
 
@@ -37,14 +36,12 @@ class TestDatasetManager(unittest.TestCase):
             {
                 "identifier": "one_test",
                 "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
-                "description": "my little dataset",
-                "format": "csv"
+                "description": "my little dataset"
             },
             {
                 "identifier": "two_test",
                 "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
-                "description": "my little dataset 2",
-                "format": "csv"
+                "description": "my little dataset 2"
             }
         ])
 
@@ -54,19 +51,13 @@ class TestDatasetManager(unittest.TestCase):
     def test_should_get_dataset(self):
 
         data = DatasetManager("./tests/resources/local_data")
-        df = pd.read_csv("./tests/resources/local_data/train.csv")
-        assert_frame_equal(data.get_dataset("local_test"), df)
-    
-    def test_should_get_dataset_zipped(self):
+        path = "./tests/resources/local_data/train.csv"
+        self.assertEqual(data.get_dataset("local_test"), path)
+
+    def test_should_get_dataset_unknown(self):
 
         data = DatasetManager("./tests/resources/local_data")
-        df = pd.read_csv("./tests/resources/local_data/train.csv")
-        assert_frame_equal(data.get_dataset("local_zip_test"), df)
-
-    def test_should_get_dataset_unknown_format(self):
-
-        data = DatasetManager("./tests/resources/local_data")
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(IOError):
             data.get_dataset("unknown_test")
     
     def test_should_create_dataset(self):
@@ -75,8 +66,7 @@ class TestDatasetManager(unittest.TestCase):
         dataset = {
             "identifier": identifier,
             "description": "description",
-            "source": "/tmp/test.csv",
-            "format_extension": "csv"
+            "source": "/tmp/test.csv"
         }
         data.create_dataset(**dataset)
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
@@ -84,7 +74,6 @@ class TestDatasetManager(unittest.TestCase):
         loaded_dataset = data.list_datasets()
         self.assertEqual(loaded_dataset.identifier.values[0], dataset["identifier"])
         self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
-        self.assertEqual(loaded_dataset.format.values[0], dataset["format_extension"])
         self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
 
     def test_should_remove_dataset(self):
@@ -93,8 +82,7 @@ class TestDatasetManager(unittest.TestCase):
         dataset = {
             "identifier": identifier,
             "description": "description",
-            "source": "/tmp/test.csv",
-            "format_extension": "csv"
+            "source": "/tmp/test.csv"
         }
         data.create_dataset(**dataset)
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))

@@ -1,6 +1,6 @@
 # Dataset Manager
 
-Manage and automatize your datasets for your project with YAML files high integrated with [Pandas](https://pandas.pydata.org/).
+Manage and automatize your datasets for your project with YAML files.
 
 
 [![Build Status](https://travis-ci.com/dmvieira/dataset-manager.svg?branch=master)](https://travis-ci.com/dmvieira/dataset-manager)
@@ -25,8 +25,6 @@ format: csv
 
 *description*: describe your dataset to remember later.
 
-*format*: pandas read format following `read_<format>` as described here: https://pandas.pydata.org/pandas-docs/stable/reference/io.html.
-
 Each dataset is a YAML file inside dataset directory.
 
 ## Installing
@@ -49,7 +47,7 @@ You can manage your datasets with a list of commands and integrated with [Pandas
 
 ### List all Datasets
 
-Return a List with all datasets from dataset path
+Return a List with all Datasets from dataset path
 
 ```
 from dataset_manager import DatasetManager
@@ -61,14 +59,14 @@ manager.list_datasets()
 
 ### Get one Dataset
 
-Get dataset as Pandas DataFrame and accept **Pandas** read `*args` and `**kwargs`
+Get Dataset *source*
 
 ```
 from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.get_dataset(identifier, *args, **kwargs)
+manager.get_dataset(identifier)
 ```
 
 ### Create a Dataset
@@ -80,7 +78,7 @@ from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path)
 
-manager.create_dataset(identifier, source, description, format_extension)
+manager.create_dataset(identifier, source, description)
 ```
 
 ### Remove a Dataset
