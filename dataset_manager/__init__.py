@@ -5,18 +5,27 @@ import yaml
 class DatasetManager(object):
     def __init__(self, dataset_path):
         self.__dataset_path = dataset_path
-    
+#        self.__datasource_list = self.__get_data_sources()
+
     def list_datasets(self):
         datasets = []
-        for dataset in os.listdir(self.__dataset_path):
-            if dataset.endswith(".yaml"):
-                dataset_path = os.path.join(self.__dataset_path, dataset)
-                with open(dataset_path, "r") as dataset_file:
-                    ds_metadata = yaml.load(dataset_file, Loader=yaml.FullLoader)
-                    ds_metadata["identifier"] = ".".join(dataset.split(".")[:-1])
-                    datasets.append(ds_metadata)
+        config_files = self.__get_config_files()
+        for config_file in config_files:
+            datasets.append(self.__parser_config_file(config_file))
         return pd.DataFrame(datasets)
-            
+    
+    def __get_config_files(self):
+        all_files = os.listdir(self.__dataset_path)
+        yaml_files = [os.path.join(self.__dataset_path, yaml_f) for yaml_f in all_files if yaml_f.endswith(".yaml")]
+        return yaml_files
+
+    def __parser_config_file(self,file):
+        with open(file, "r") as f:
+            ds_metadata = yaml.load(f, Loader=yaml.FullLoader)
+            file_name = os.path.split(file)[-1]
+            ds_metadata["identifier"] = file_name.split(".")[0]
+            return ds_metadata
+
     def get_dataset(self, identifier):
         datasets = self.list_datasets()
         dataset = datasets[datasets.identifier == identifier]
