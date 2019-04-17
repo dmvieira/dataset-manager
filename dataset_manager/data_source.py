@@ -5,6 +5,7 @@ module to prepare the datasets
 import os
 import urllib.request
 import zipfile
+from dataset_manager.__pd_func_map import PD_FUNC_MAP
 
 class DataSource(object):
     """Class to prepare the dataset"""
@@ -49,6 +50,12 @@ class DataSource(object):
             files_local = os.listdir(self.local_source)
             files = [os.path.join(self.local_source, f) for f in files_local]
         return files[0]
+
+    def load_as_pandas(self, *args, **kargs):
+        "uses the field `format` to read the dataset with pandas"
+        file_to_read = self.get_file_path_to_read()
+        read_method = PD_FUNC_MAP[self.format]
+        return read_method(file_to_read)
 
     def __get_formats(self, read_format):
         formats_values = read_format.split(" ")

@@ -57,6 +57,11 @@ class DatasetManager(object):
             datasource.download()
             datasource.unzip_file()
 
+    def load_as_pandas(self, identifier, *args, **kargs):
+        "read a dataset using pandas and return a dataframe"
+        datasource = self.__datasources[identifier]
+        return datasource.load_as_pandas(*args, **kargs)
+
     def __get_config_files(self, dataset_path):
         all_files = os.listdir(dataset_path)
         yaml_files = [os.path.join(dataset_path, yaml_f) for yaml_f in all_files if yaml_f.endswith(".yaml")]
