@@ -26,7 +26,7 @@ class TestDatasetManager(unittest.TestCase):
                 }
 
         data = DatasetManager("./tests/resources/one_data")
-        self.assertDictEqual(data.list_datasets(), expected)
+        self.assertDictEqual(data.get_datasets(), expected)
     
 
     def test_should_read_multiple_yaml_from_dir(self):
@@ -45,7 +45,7 @@ class TestDatasetManager(unittest.TestCase):
         }
  
         data = DatasetManager("./tests/resources/multiple_data")
-        result = list(data.list_datasets().keys())
+        result = list(data.get_datasets().keys())
         result.sort()
         expected = ["one_test", "two_test"]
         self.assertListEqual(expected,result)
@@ -78,7 +78,7 @@ class TestDatasetManager(unittest.TestCase):
 
         data.create_dataset(**dataset)
 
-        loaded_datasets = data.list_datasets()
+        loaded_datasets = data.get_datasets()
         dataset_config = loaded_datasets.get(identifier)
 
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
@@ -101,7 +101,7 @@ class TestDatasetManager(unittest.TestCase):
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
       
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
-        loaded_dataset = data.list_datasets()
+        loaded_dataset = data.get_datasets()
         self.assertEqual(list(loaded_dataset.keys()), [identifier])
 
         datasource_configs = loaded_dataset.get(identifier)
