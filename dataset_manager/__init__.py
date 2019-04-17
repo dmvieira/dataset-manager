@@ -1,22 +1,17 @@
 import os
 import yaml
+from dataset_manager.data_source import DataSource
 
 class DatasetManager(object):
     def __init__(self, dataset_path):
         self.__dataset_path = dataset_path
-        self.__datasets = self.__get_datasets(dataset_path)
-#        self.__datasource_list = self.__get_data_sources()
+        datasets =  self.__get_datasets(dataset_path)
+        self.__datasets = datasets
+        self.__datasource_list = self.__get_data_sources(datasets)
 
     def list_datasets(self):
         self.__datasets = self.__get_datasets(self.__dataset_path)
         return self.__datasets
-
-    def __get_datasets(self, config_path):
-        datasets = {}
-        config_files = self.__get_config_files(config_path)
-        for config_file in config_files:
-            datasets.update(self.__parser_config_file(config_file))
-        return datasets
 
     def get_dataset(self, identifier):
         datasets = self.list_datasets()
@@ -58,3 +53,21 @@ class DatasetManager(object):
             file_name = os.path.split(file)[-1]
             id = file_name.split(".")[0]
             return {id : ds_metadata}
+
+    def __get_datasets(self, config_path):
+        datasets = {}
+        config_files = self.__get_config_files(config_path)
+        for config_file in config_files:
+            datasets.update(self.__parser_config_file(config_file))
+        return datasets
+
+    def __get_data_sources(self, datasets):
+        data_source = {}
+        for k in datasets:
+            dataset = datasets[k]
+            source = dataset["source"]
+            description = dataset["description"]
+            format = dataset.get("format", "csv")
+            local_source = dataset.get("local_source")
+            data_source[k] = DataSource(k,  source, description, format, local_source)
+        return data_source
