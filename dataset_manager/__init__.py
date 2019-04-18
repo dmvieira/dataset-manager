@@ -1,12 +1,28 @@
-"""dataset_manager
-module to manage datasets
+# -*- coding: utf-8 -*
+"""Dataset Manager
+
+This module helps to administrate the datasource 
+for a DataScience projetc.
+
 """
 import os
 import yaml
 from dataset_manager.data_source import DataSource
 
 class DatasetManager(object):
-    "Class to parse the config files and handle the datasets"
+    """DatasetManager is the class to administrate the datasources
+    from a projec.
+
+    It is required a path with all datasource configurations as
+    yaml files. 
+
+    Each file represents a datadource and must have the attributes:
+    `source`, `description`, `format` and 
+    `local_source`(to save the downloaded data).
+
+    Args:
+        dataset_path: path to the datasets configurations.
+    """
     def __init__(self, dataset_path):
         self.__dataset_path = dataset_path
         datasets = self.__get_datasets(dataset_path)
@@ -14,12 +30,26 @@ class DatasetManager(object):
         self.__datasources = self.__get_data_sources(datasets)
 
     def get_datasets(self):
-        "gets a dict with all datasets, where the key is the identifier"
+        """returns a dict with all datasets informations.
+
+        Returns:
+            dict: The key is the identifier and the value is a dict
+            with the configurations. The identifier is the name of the
+            configuration file.
+        """
+
         self.__datasets = self.__get_datasets(self.__dataset_path)
         return self.__datasets
 
     def get_dataset(self, identifier):
-        "gets a dataset config by name"
+        """gets a dataset config by name.
+
+        Args:
+            identifier: datasource identifier.
+
+        Raises:
+            IOError: In case of nonexistent identifier.
+        """
         datasets = self.get_datasets()
         dataset = datasets.get(identifier)
         if dataset:
@@ -30,7 +60,14 @@ class DatasetManager(object):
 
 
     def create_dataset(self, identifier, source, description, **kwargs):
-        "creates a dataset config file"
+        """creates a dataset config file.
+
+        Args:
+            identifier: name to identify the dataset.
+            source: path or url where the dataset is in.
+            description: description about the dataset.
+            **kwargs: extra attributer to save in configuration file.
+        """
         dataset_dict = {
             "source": source,
             "description": description
@@ -41,7 +78,14 @@ class DatasetManager(object):
             yaml.dump(dataset_dict, dataset_file)
 
     def remove_dataset(self, identifier):
-        "removes a dataset config file"
+        """removes a dataset config file.
+
+        Args:
+            identifier: name to identify the dataset.
+
+        Raise:
+            IOError: In case of nonexistent identifier.
+        """ 
         dataset_path = os.path.join(self.__dataset_path, identifier)
         file_to_delete = "{}.yaml".format(dataset_path)
         if os.path.isfile(file_to_delete):
@@ -51,14 +95,19 @@ class DatasetManager(object):
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
     def prepare_dataset(self):
-        "download and unzip all datasets"
+        """download and unzip all datasets."""
         for k in self.__datasources:
             datasource = self.__datasources[k]
             datasource.download()
             datasource.unzip_file()
 
     def load_as_pandas(self, identifier, *args, **kargs):
-        "read a dataset using pandas and return a dataframe"
+        """read a dataset using pandas and return a dataframe.
+        
+        Args:
+            identifier: name to identify the dataset.
+            *args and **kargs: args to pass to the pandas read function.
+        """
         datasource = self.__datasources[identifier]
         return datasource.load_as_pandas(*args, **kargs)
 
