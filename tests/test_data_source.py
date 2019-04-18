@@ -29,7 +29,7 @@ class TestDatasetManager(unittest.TestCase):
         cache_exists.return_value = True
         test_ds = DataSource("test_id", "/source/to/file", "test dataset", "zip json", "/local/path")
         self.assertEquals(True,test_ds.is_cached()) 
-        cache_exists.assert_called_with("/local/path.zip")
+        cache_exists.assert_called_with("/local/path")
 
         cache_exists.return_value = False
         self.assertEquals(False,test_ds.is_cached()) 
@@ -39,7 +39,7 @@ class TestDatasetManager(unittest.TestCase):
         cache_exists.return_value = False
         test_ds = DataSource("test_id", "/source/to/file", "test dataset", "zip json", "/local/path")
         self.assertEquals(False,test_ds.is_cached()) 
-        cache_exists.assert_called_with("/local/path.zip")
+        cache_exists.assert_called_with("/local/path")
 
 
     

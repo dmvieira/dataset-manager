@@ -1,23 +1,47 @@
 # -*- coding: utf-8 -*
 """Dataset Manager
 
-This module helps to administrate the datasource 
+This module helps to administrate the datasource
 for a DataScience projetc.
 
 """
 import os
+import logging
 import yaml
 from dataset_manager.data_source import DataSource
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - '
+        '%(name)s - '
+        '%(funcName)s - '
+        '%(levelname)s - '
+        '%(message)s',
+    datefmt='%m-%d %H:%M')
 
-class DatasetManager(object):
+def _get_config_files(dataset_path):
+    all_files = os.listdir(dataset_path)
+    all_yaml = [yaml for yaml in all_files if yaml.endswith(".yaml")]
+    abs_yaml_files = [os.path.join(dataset_path, yaml_f) for yaml_f in all_yaml]
+    return abs_yaml_files
+
+def _parser_config_file(file):
+    result = {}
+    with open(file, "r") as conf_f:
+        ds_metadata = yaml.load(conf_f, Loader=yaml.FullLoader)
+        file_name = os.path.split(file)[-1]
+        identifier = file_name.split(".")[0]
+        result = {identifier : ds_metadata}
+    return result
+
+class DatasetManager:
     """DatasetManager is the class to administrate the datasources
     from a projec.
 
     It is required a path with all datasource configurations as
-    yaml files. 
+    yaml files.
 
     Each file represents a datadource and must have the attributes:
-    `source`, `description`, `format` and 
+    `source`, `description`, `format` and
     `local_source`(to save the downloaded data).
 
     Args:
@@ -25,9 +49,8 @@ class DatasetManager(object):
     """
     def __init__(self, dataset_path):
         self.__dataset_path = dataset_path
-        datasets = self.__get_datasets(dataset_path)
-        self.__datasets = datasets
-        self.__datasources = self.__get_data_sources(datasets)
+        self.__logger = logging.getLogger(
+            self.__class__.__name__)
 
     def get_datasets(self):
         """returns a dict with all datasets informations.
@@ -38,8 +61,7 @@ class DatasetManager(object):
             configuration file.
         """
 
-        self.__datasets = self.__get_datasets(self.__dataset_path)
-        return self.__datasets
+        return self.__get_datasets()
 
     def get_dataset(self, identifier):
         """gets a dataset config by name.
@@ -73,6 +95,7 @@ class DatasetManager(object):
             "description": description
             }
         dataset_dict.update(kwargs)
+        self.__logger.info("dataset attributes: \n {}".format(dataset_dict))
         dataset_path = os.path.join(self.__dataset_path, identifier)
         with open("{}.yaml".format(dataset_path), "w") as dataset_file:
             yaml.dump(dataset_dict, dataset_file)
@@ -85,54 +108,47 @@ class DatasetManager(object):
 
         Raise:
             IOError: In case of nonexistent identifier.
-        """ 
+        """
         dataset_path = os.path.join(self.__dataset_path, identifier)
         file_to_delete = "{}.yaml".format(dataset_path)
         if os.path.isfile(file_to_delete):
             os.remove(file_to_delete)
+            self.__logger.info("delete dataset {}".format(identifier))
         else:
             identifiers = self.get_datasets()
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
     def prepare_dataset(self):
         """download and unzip all datasets."""
-        for k in self.__datasources:
-            datasource = self.__datasources[k]
+        all_datasources = self.__get_data_sources()
+        for k in all_datasources:
+            self.__logger.info("Preparing {} ...".format(k))
+            datasource = all_datasources[k]
             datasource.download()
             datasource.unzip_file()
+            self.__logger.info("{} is ready to use!".format(k))
 
-    def load_as_pandas(self, identifier, *args, **kargs):
+
+    def load_as_pandas(self, identifier, *args, **kwargs):
         """read a dataset using pandas and return a dataframe.
-        
+
         Args:
             identifier: name to identify the dataset.
-            *args and **kargs: args to pass to the pandas read function.
+            *args and **kwargs: args to pass to the pandas read function.
         """
-        datasource = self.__datasources[identifier]
-        return datasource.load_as_pandas(*args, **kargs)
+        all_datasources = self.__get_data_sources()
+        datasource = all_datasources[identifier]
+        return datasource.load_as_pandas(*args, **kwargs)
 
-    def __get_config_files(self, dataset_path):
-        all_files = os.listdir(dataset_path)
-        yaml_files = [os.path.join(dataset_path, yaml_f) for yaml_f in all_files if yaml_f.endswith(".yaml")]
-        return yaml_files
-
-    def __parser_config_file(self, file):
-        result = {}
-        with open(file, "r") as conf_f:
-            ds_metadata = yaml.load(conf_f, Loader=yaml.FullLoader)
-            file_name = os.path.split(file)[-1]
-            identifier = file_name.split(".")[0]
-            result = {identifier : ds_metadata}
-        return result
-
-    def __get_datasets(self, config_path):
+    def __get_datasets(self):
         datasets = {}
-        config_files = self.__get_config_files(config_path)
+        config_files = _get_config_files(self.__dataset_path)
         for config_file in config_files:
-            datasets.update(self.__parser_config_file(config_file))
+            datasets.update(_parser_config_file(config_file))
         return datasets
 
-    def __get_data_sources(self, datasets):
+    def __get_data_sources(self):
+        datasets = self.__get_datasets()
         data_source = {}
         for k in datasets:
             dataset = datasets[k]
