@@ -3,10 +3,18 @@ data_source
 module to prepare the datasets
 """
 import os
-import urllib.request
+import requests
 import zipfile
 import logging
 from dataset_manager.__pd_func_map import PD_FUNC_MAP
+
+def _stream_download(url,local_filename):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192): 
+                if chunk:
+                    f.write(chunk)
 
 class DataSource(object):
     """Class to prepare the dataset"""
@@ -31,10 +39,11 @@ class DataSource(object):
             download_file_name = self.local_source
             if self.is_zipped():
                 download_file_name = self.__get_zipped_file_name()
-            urllib.request.urlretrieve(self.source, download_file_name)
+            _stream_download(self.source, download_file_name)
             self.__logger.debug("{} Downloaded!".format(self.identifier))
         else:
             self.__logger.debug("{} is cached. Skip Download.".format(self.identifier))
+
     def is_zipped(self):
         "check if the dataset is zipped"
         return self.compression is not None
@@ -81,3 +90,5 @@ class DataSource(object):
     def __create_path_to_extract(self):
         if not os.path.exists(self.local_source):
             os.mkdir(self.local_source)
+
+

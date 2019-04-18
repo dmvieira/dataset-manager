@@ -1,8 +1,11 @@
   
 import os
 import unittest
-from unittest.mock import patch
+from mock import patch
 from dataset_manager.data_source import DataSource
+import dataset_manager
+
+dataset_manager.data_source._stream_download = lambda x,y : None
 
 class TestDatasetManager(unittest.TestCase):
 
@@ -60,19 +63,19 @@ class TestDatasetManager(unittest.TestCase):
         self.assertEquals(False,test_ds.is_cached()) 
         cache_exists.assert_called_with("/local/path")
 
-    @patch("urllib.request.urlretrieve")
+    @patch("dataset_manager.data_source._stream_download")
     def test_download(self, download_request):
         test_ds = DataSource("test_id", "/source/to/file", "test dataset", "json", "/local/path")
         test_ds.download()
         download_request.assert_called_with("/source/to/file","/local/path")
 
-    @patch("urllib.request.urlretrieve")
+    @patch("dataset_manager.data_source._stream_download")
     def test_zip_download(self, download_request):
         test_ds = DataSource("test_id", "/source/to/file", "test dataset", "zip json", "/local/path")
         test_ds.download()
         download_request.assert_called_with("/source/to/file","/local/path.zip")
 
-    @patch("urllib.request.urlretrieve")
+    @patch("dataset_manager.data_source._stream_download")
     def test_dont_download(self, download_request):
         test_ds = DataSource("test_id", "/source/to/file", "test dataset", "zip json", "/local/path")
         test_ds.is_cached = lambda : True

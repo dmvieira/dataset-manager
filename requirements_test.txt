@@ -3,4 +3,5 @@ twine
 pandas>=0.19.2
 PyYAML>=3.13
 coverage
-urllib
+requests
+mock
