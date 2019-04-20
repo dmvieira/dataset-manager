@@ -5,7 +5,7 @@ install:
 	@pip install -e .
 
 test:
-	@nosetests -s --with-coverage --cover-inclusive --cover-package=dataset_manager
+	nosetests -s --with-coverage --cover-inclusive --cover-package=dataset_manager
 
 dist:
 	@python setup.py sdist bdist_wheel
