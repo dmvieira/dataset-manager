@@ -8,6 +8,7 @@ for a DataScience projetc.
 import os
 import logging
 import yaml
+import pandas as pd
 from dataset_manager.data_source import DataSource
 logging.basicConfig(
     level=logging.DEBUG,
@@ -61,7 +62,11 @@ class DatasetManager:
             configuration file.
         """
 
-        return self.__get_datasets()
+        datasets = {}
+        config_files = _get_config_files(self.__dataset_path)
+        for config_file in config_files:
+            datasets.update(_parser_config_file(config_file))
+        return datasets
 
     def get_dataset(self, identifier):
         """gets a dataset config by name.
@@ -80,6 +85,20 @@ class DatasetManager:
         identifiers = datasets.keys()
         raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
+    def show_datasets(self):
+        """return all datasets configurations as pandas dataframe
+
+        Returns:
+            DataFrame: Pandas Dataframe with all datasets
+        """
+        datasets = self.get_datasets()
+        lines = []
+        for identifier in datasets:
+            line = dict()
+            line["identifier"] = identifier
+            line.update(datasets[identifier])
+            lines.append(line)
+        return pd.DataFrame(lines)
 
     def create_dataset(self, identifier, source, description, **kwargs):
         """creates a dataset config file.
@@ -128,7 +147,6 @@ class DatasetManager:
             datasource.unzip_file()
             self.__logger.info("{} is ready to use!".format(k))
 
-
     def load_as_pandas(self, identifier, *args, **kwargs):
         """read a dataset using pandas and return a dataframe.
 
@@ -140,15 +158,8 @@ class DatasetManager:
         datasource = all_datasources[identifier]
         return datasource.load_as_pandas(*args, **kwargs)
 
-    def __get_datasets(self):
-        datasets = {}
-        config_files = _get_config_files(self.__dataset_path)
-        for config_file in config_files:
-            datasets.update(_parser_config_file(config_file))
-        return datasets
-
     def __get_data_sources(self):
-        datasets = self.__get_datasets()
+        datasets = self.get_datasets()
         data_source = {}
         for k in datasets:
             dataset = datasets[k]
