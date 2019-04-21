@@ -138,7 +138,7 @@ class DatasetManager:
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
     def prepare_dataset(self):
-        """download and unzip all datasets."""
+        """Download and unzip all datasets."""
         all_datasources = self.__get_data_sources()
         for k in all_datasources:
             self.__logger.info("Preparing {} ...".format(k))
@@ -148,7 +148,7 @@ class DatasetManager:
             self.__logger.info("{} is ready to use!".format(k))
 
     def load_as_pandas(self, identifier, *args, **kwargs):
-        """read a dataset using pandas and return a dataframe.
+        """Read a dataset using pandas and return a dataframe.
 
         Args:
             identifier: name to identify the dataset.

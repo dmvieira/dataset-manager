@@ -29,11 +29,14 @@ class DataSource(object):
         self.__logger = logging.getLogger(self.__class__.__name__)
 
     def is_cached(self):
-        "check if the dataset is cached on local storage"
+        """Check if the dataset is cached on local storage.
+
+        Returns:
+            boolean: True, if the dataset is local, otherwise returns False."""
         return self.local_source and os.path.exists(self.local_source)
 
     def download(self):
-        "download the dataset from source"
+        """Download the dataset from source if the dataset is not cached yet."""
         if not self.is_cached():
             self.__logger.debug("{} is not chached. Downloading ...".format(self.identifier))
             download_file_name = self.local_source
@@ -45,11 +48,14 @@ class DataSource(object):
             self.__logger.debug("{} is cached. Skip Download.".format(self.identifier))
 
     def is_zipped(self):
-        "check if the dataset is zipped"
+        """Check if the dataset is zipped
+
+        Returns:
+            boolean: True, if the datasource is zipped, otherwise returns False."""
         return self.compression is not None
 
     def unzip_file(self):
-        "unzip to local_storage and removes the zip file"
+        """Unzip to local_storage and removes the zip file."""
         if self.is_zipped() and self.__zipfile_existis():
             self.__logger.debug("Unzipping {} ...".format(self.identifier))
             zip_file_name = self.__get_zipped_file_name()
@@ -59,7 +65,11 @@ class DataSource(object):
             self.__logger.debug("{} unzipped!".format(self.identifier))
 
     def get_file_path_to_read(self):
-        "get the file path where is the downloaded data"
+        """Get the file path where is the downloaded data.
+
+        Returns:
+            String: path to file to read. In case of downloadable datasource,
+            returns the local storage, otherwise returns the local source."""
         files = [self.local_source]
         if self.is_zipped():
             files_local = os.listdir(self.local_source)
@@ -67,7 +77,15 @@ class DataSource(object):
         return files[0]
 
     def load_as_pandas(self, *args, **kwargs):
-        "uses the field `format` to read the dataset with pandas"
+        """Uses the field `format` to read the dataset with pandas
+
+        Args:
+            *args and **kwargs: extra params passed 
+            to pandas read method.
+
+        Returns:
+            DataFrame: dataframe with dataset.
+        """
         file_to_read = self.get_file_path_to_read()
         read_method = PD_FUNC_MAP[self.format]
         return read_method(file_to_read, *args, **kwargs)
