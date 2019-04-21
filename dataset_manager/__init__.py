@@ -163,9 +163,8 @@ class DatasetManager:
         data_source = {}
         for k in datasets:
             dataset = datasets[k]
-            source = dataset["source"]
-            description = dataset["description"]
-            read_format = dataset.get("format", "csv")
-            local_source = dataset.get("local_source")
-            data_source[k] = DataSource(k, source, description, read_format, local_source)
+            source = dataset.pop("source")
+            description =  dataset.pop("description")
+            read_format = dataset.pop("format", "csv")
+            data_source[k] = DataSource(k, source, description, read_format, **dataset)
         return data_source

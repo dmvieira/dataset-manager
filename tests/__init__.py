@@ -20,7 +20,7 @@ class TestDatasetManager(unittest.TestCase):
 
         expected = {
             "one_test" : {
-                "source": "source/teste",
+                "source": "http://source/teste",
                 "description": "my little dataset"
                 }
                 }
