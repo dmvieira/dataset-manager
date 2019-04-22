@@ -6,6 +6,7 @@ from dataset_manager.data_source import DataSource
 import dataset_manager
 import pandas as pd
 from pandas.testing import assert_frame_equal
+import shutil
 
 dataset_manager.data_source._stream_download = lambda x,y : None
 
@@ -132,3 +133,11 @@ class TestDatasetManager(unittest.TestCase):
             ["One Name",0]],
             columns=["name","label"])
         assert_frame_equal(result,expected)
+
+    @patch("os.remove")
+    def test_unzip_local_data(self,remove):
+        remove.return_value = None
+        test_local = DataSource("train", "./tests/resources/local_data/train.zip", "test dataset", "zip csv")
+        test_local.unzip_file()
+        self.assertTrue(os.path.exists("./tests/resources/local_data/train/train.csv"))
+        shutil.rmtree("./tests/resources/local_data/train")

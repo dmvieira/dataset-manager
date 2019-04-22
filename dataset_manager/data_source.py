@@ -65,10 +65,15 @@ class DataSource(object):
         if self.is_zipped() and self.__zipfile_existis():
             self.__logger.debug("Unzipping {} ...".format(self.identifier))
             zip_file_name = self.__get_zipped_file_name()
-            local_source = self.__create_path_to_extract()
-            zipfile.ZipFile(zip_file_name).extractall(local_source)
+            path_to_unzip = self.__get_unzip_folder()
+            self.__create_path_to_extract(path_to_unzip)
+            zipfile.ZipFile(zip_file_name).extractall(path_to_unzip)
             os.remove(zip_file_name)
             self.__logger.debug("{} unzipped!".format(self.identifier))
+        elif not self.__zipfile_existis():
+            self.__logger.debug("local zip file of {} do not existes.")
+        else:
+            self.__logger.debug("{} is note zipped.")
 
     def get_file_path_to_read(self):
         """Get the file path where is the downloaded data.
@@ -81,6 +86,8 @@ class DataSource(object):
         if os.path.isdir(local_source):
             files_local = os.listdir(local_source)
             files = [os.path.join(local_source, f) for f in files_local]
+        elif zipfile.is_zipfile(local_source):
+            files = [local_source.split(".")[0]]
         return files[0]
 
     def load_as_pandas(self, *args, **kwargs):
@@ -107,17 +114,24 @@ class DataSource(object):
         return {"format" : formats_values[0]}
 
     def __get_zipped_file_name(self):
-        local_path = self.source if not self.is_online_source() else "{}.zip".format(self.__get_local_source()) 
-        return local_path
+        if not self.is_online_source():
+            return self.source
+        else:
+            return "{}.zip".format(self.__get_local_source()) 
+
+    def __get_unzip_folder(self):
+        if self.is_online_source():
+            return self.__get_local_source()
+        else:
+            return os.path.splitext(self.source)[0]
 
     def __zipfile_existis(self):
         return os.path.exists(self.__get_zipped_file_name())
 
-    def __create_path_to_extract(self):
-        local_source = self.__get_local_source()
-        if not os.path.exists(local_source):
-            os.mkdir(local_source)
-        return local_source
+
+    def __create_path_to_extract(self, path_to_extract):
+        if not os.path.exists(path_to_extract):
+            os.mkdir(path_to_extract)
 
     def __get_local_source(self):
         local_source = self.extra_args.get("local_source")
