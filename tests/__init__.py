@@ -18,45 +18,47 @@ class TestDatasetManager(unittest.TestCase):
 
     def test_should_read_yaml_from_dir(self):
 
-        expected = pd.DataFrame([
-            {
-                "identifier": "one_test",
-                "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
+        expected = {
+            "one_test" : {
+                "source": "http://source/teste",
                 "description": "my little dataset"
-            }
-        ])
+                }
+                }
 
         data = DatasetManager("./tests/resources/one_data")
-        assert_frame_equal(data.list_datasets(), expected)
+        self.assertDictEqual(data.get_datasets(), expected)
     
 
     def test_should_read_multiple_yaml_from_dir(self):
 
-        expected = pd.DataFrame([
-            {
-                "identifier": "one_test",
+        expected ={
+            "one_test" : {
                 "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
                 "description": "my little dataset"
             },
-            {
-                "identifier": "two_test",
+
+            "two_test" : {
                 "source": "https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.csv",
                 "description": "my little dataset 2"
-            }
-        ])
 
+            }
+        }
+ 
         data = DatasetManager("./tests/resources/multiple_data")
-        assert_frame_equal(data.list_datasets().sort_values("identifier").reset_index(drop=True), expected.sort_values("identifier").reset_index(drop=True))
+        result = list(data.get_datasets().keys())
+        result.sort()
+        expected = ["one_test", "two_test"]
+        self.assertListEqual(expected,result)
 
     def test_should_get_dataset(self):
 
         data = DatasetManager("./tests/resources/local_data")
-        dataset = {
-                "identifier": "local_test",
-                "source": "./tests/resources/local_data/train.csv",
-                "description": "my little dataset local"
+        dataset = {"local_test" : {
+            "source": "./tests/resources/local_data/train.csv",
+            "description": "my little dataset local"
             }
-        self.assertDictEqual(data.get_dataset("local_test"), dataset)
+            }
+        self.assertDictEqual(data.get_dataset("local_test"), dataset.get("local_test"))
 
     def test_should_get_dataset_unknown(self):
 
@@ -70,15 +72,21 @@ class TestDatasetManager(unittest.TestCase):
         dataset = {
             "identifier": identifier,
             "description": "description",
-            "source": "/tmp/test.csv"
+            "source": "/tmp/test.csv",
+            "format": "xls"
         }
+
         data.create_dataset(**dataset)
+
+        loaded_datasets = data.get_datasets()
+        dataset_config = loaded_datasets.get(identifier)
+
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
-        loaded_dataset = data.list_datasets()
-        self.assertEqual(loaded_dataset.identifier.values[0], dataset["identifier"])
-        self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
-        self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
+
+        self.assertEqual(list(loaded_datasets.keys())[0], identifier)
+        self.assertEqual(dataset_config.get("description"), dataset["description"])
+        self.assertEqual(dataset_config.get("source"), dataset["source"])
 
     def test_should_create_dataset_with_custom_data(self):
         data = DatasetManager(self.trash_dir)
@@ -91,12 +99,15 @@ class TestDatasetManager(unittest.TestCase):
         }
         data.create_dataset(**dataset)
         self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
+      
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
-        loaded_dataset = data.list_datasets()
-        self.assertEqual(loaded_dataset.identifier.values[0], dataset["identifier"])
-        self.assertEqual(loaded_dataset.description.values[0], dataset["description"])
-        self.assertEqual(loaded_dataset.source.values[0], dataset["source"])
-        self.assertEqual(loaded_dataset.format.values[0], dataset["format"])
+        loaded_dataset = data.get_datasets()
+        self.assertEqual(list(loaded_dataset.keys()), [identifier])
+
+        datasource_configs = loaded_dataset.get(identifier)
+        self.assertEqual(datasource_configs["description"], dataset["description"])
+        self.assertEqual(datasource_configs["source"], dataset["source"])
+        self.assertEqual(datasource_configs["format"], dataset["format"])
 
 
     def test_should_remove_dataset(self):

@@ -18,7 +18,8 @@ setup(
     license='Apache 2',
     install_requires=[
         "PyYAML>=3.13",
-        "pandas>=0.19.2"
+        "pandas>=0.19.2",
+        "requests>=2.21.0"
     ],
     packages=find_packages(),
 )
