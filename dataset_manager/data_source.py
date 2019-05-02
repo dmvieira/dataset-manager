@@ -7,18 +7,11 @@ import requests
 import zipfile
 import logging
 from dataset_manager.__pd_func_map import PD_FUNC_MAP
-
-def _stream_download(url,local_filename):
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
-                if chunk:
-                    f.write(chunk)
+from fs.archive import open_archive
 
 class DataSource(object):
     """Class to prepare the dataset"""
-    def __init__(self, identifier, source, description, read_format, **kwargs):
+    def __init__(self, identifier, source, description, read_format, fs, **kwargs):
         self.source = source
         self.description = description
         format_and_compression = self.__get_formats(read_format)
@@ -26,6 +19,7 @@ class DataSource(object):
         self.compression = format_and_compression.get("compression")
         self.identifier = identifier
         self.extra_args = kwargs
+        self.__fs = fs
         self.__logger = logging.getLogger(self.__class__.__name__)
 
     def is_cached(self):
@@ -33,7 +27,7 @@ class DataSource(object):
 
         Returns:
             boolean: True, if the dataset is local, otherwise returns False."""
-        return self.is_online_source() and os.path.exists(self.__get_local_source())
+        return self.is_online_source() and self.__fs.exists(self.__get_local_source())
 
     def is_online_source(self):
         """Check if the source is online or local.
@@ -62,15 +56,17 @@ class DataSource(object):
 
     def unzip_file(self):
         """Unzip to local_storage and removes the zip file."""
-        if self.is_zipped() and self.__zipfile_existis():
+        if self.is_zipped() and self.__zipfile_exists():
             self.__logger.debug("Unzipping {} ...".format(self.identifier))
             zip_file_name = self.__get_zipped_file_name()
             path_to_unzip = self.__get_unzip_folder()
             self.__create_path_to_extract(path_to_unzip)
-            zipfile.ZipFile(zip_file_name).extractall(path_to_unzip)
-            os.remove(zip_file_name)
+            with open_archive(self.__fs, zip_file_name) as archive:
+                for element in archive.listdir("."):
+                    self.__fs.writetext(os.path.join(path_to_unzip, element), archive.readtext(element))
+            self.__fs.remove(zip_file_name)
             self.__logger.debug("{} unzipped!".format(self.identifier))
-        elif not self.__zipfile_existis():
+        elif not self.__zipfile_exists():
             self.__logger.debug("local zip file of {} do not existes.")
         else:
             self.__logger.debug("{} is note zipped.")
@@ -83,8 +79,8 @@ class DataSource(object):
             returns the local storage, otherwise returns the local source."""
         local_source = self.source if not self.is_online_source() else self.__get_local_source()
         files = [local_source]
-        if os.path.isdir(local_source):
-            files_local = os.listdir(local_source)
+        if self.__fs.isdir(local_source):
+            files_local = self.__fs.listdir(local_source)
             files = [os.path.join(local_source, f) for f in files_local]
         elif zipfile.is_zipfile(local_source):
             files = [local_source.split(".")[0]]
@@ -125,13 +121,13 @@ class DataSource(object):
         else:
             return os.path.splitext(self.source)[0]
 
-    def __zipfile_existis(self):
-        return os.path.exists(self.__get_zipped_file_name())
+    def __zipfile_exists(self):
+        return self.__fs.exists(self.__get_zipped_file_name())
 
 
     def __create_path_to_extract(self, path_to_extract):
-        if not os.path.exists(path_to_extract):
-            os.mkdir(path_to_extract)
+        if not self.__fs.exists(path_to_extract):
+            self.__fs.makedir(path_to_extract)
 
     def __get_local_source(self):
         local_source = self.extra_args.get("local_source")
@@ -144,5 +140,13 @@ class DataSource(object):
         download_file_name = self.__get_local_source()
         if self.is_zipped():
             download_file_name = self.__get_zipped_file_name()
-        _stream_download(self.source, download_file_name)
+        self._stream_download(download_file_name)
+
+    def _stream_download(self, local_filename):
+        with requests.get(self.source, stream=True) as r:
+            r.raise_for_status()
+            with self.__fs.open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192): 
+                    if chunk:
+                        f.write(chunk)
 
