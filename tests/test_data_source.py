@@ -1,10 +1,11 @@
+from __future__ import unicode_literals
+
 import unittest
 from mock import Mock, patch
 from dataset_manager.data_source import DataSource
 import dataset_manager
 import pandas as pd
 from fs.osfs import OSFS
-
 from pandas.testing import assert_frame_equal
 
 class TestDataSource(unittest.TestCase):

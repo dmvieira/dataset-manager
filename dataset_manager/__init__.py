@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*
+from __future__ import unicode_literals
+
 """Dataset Manager
 
 This module helps to administrate the datasource
