@@ -7,7 +7,7 @@ module to prepare the datasets
 import os
 try:
     import urllib2
-except ModuleNotFoundError:
+except Exception:
     from urllib import request as urllib2
 from contextlib import closing
 import zipfile
