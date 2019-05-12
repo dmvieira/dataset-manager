@@ -1,20 +1,25 @@
+from __future__ import unicode_literals
+
 import os
 import unittest
 import yaml
 import pandas as pd
 from dataset_manager import DatasetManager
 from pandas.util.testing import assert_frame_equal
-
+from fs.osfs import OSFS
 
 class TestDatasetManager(unittest.TestCase):
 
     trash_dir = "./tests/resources/trash_data"
 
-    def tearDown(self):
-        for data in os.listdir(self.trash_dir):
-            if data != ".keep":
-                os.remove("{}/{}".format(self.trash_dir, data))
+    def setUp(self):
+        self.os = OSFS(".")
 
+    def tearDown(self):
+        for data in self.os.listdir(self.trash_dir):
+            if data != ".keep":
+                self.os.remove("{}/{}".format(self.trash_dir, data))
+        self.os.close()
 
     def test_should_read_yaml_from_dir(self):
 
@@ -44,7 +49,7 @@ class TestDatasetManager(unittest.TestCase):
             }
         }
  
-        data = DatasetManager("./tests/resources/multiple_data")
+        data = DatasetManager("./tests/resources/multiple_data", self.os)
         result = list(data.get_datasets().keys())
         result.sort()
         expected = ["one_test", "two_test"]
@@ -67,7 +72,7 @@ class TestDatasetManager(unittest.TestCase):
             data.get_dataset("unknown_test")
     
     def test_should_create_dataset(self):
-        data = DatasetManager(self.trash_dir)
+        data = DatasetManager(self.trash_dir, self.os)
         identifier = "data_name"
         dataset = {
             "identifier": identifier,
@@ -81,15 +86,15 @@ class TestDatasetManager(unittest.TestCase):
         loaded_datasets = data.get_datasets()
         dataset_config = loaded_datasets.get(identifier)
 
-        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
-        self.assertEqual(len(os.listdir(self.trash_dir)), 2)
+        self.assertTrue(self.os.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
+        self.assertEqual(len(self.os.listdir(self.trash_dir)), 2)
 
         self.assertEqual(list(loaded_datasets.keys())[0], identifier)
         self.assertEqual(dataset_config.get("description"), dataset["description"])
         self.assertEqual(dataset_config.get("source"), dataset["source"])
 
     def test_should_create_dataset_with_custom_data(self):
-        data = DatasetManager(self.trash_dir)
+        data = DatasetManager(self.trash_dir, self.os)
         identifier = "data_name_custom"
         dataset = {
             "identifier": identifier,
@@ -98,7 +103,7 @@ class TestDatasetManager(unittest.TestCase):
             "format": "xls"
         }
         data.create_dataset(**dataset)
-        self.assertTrue(os.path.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
+        self.assertTrue(self.os.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
       
         self.assertEqual(len(os.listdir(self.trash_dir)), 2)
         loaded_dataset = data.get_datasets()
@@ -111,7 +116,7 @@ class TestDatasetManager(unittest.TestCase):
 
 
     def test_should_remove_dataset(self):
-        data = DatasetManager(self.trash_dir)
+        data = DatasetManager(self.trash_dir, self.os)
         identifier = "data_name"
         dataset = {
             "identifier": identifier,
@@ -127,6 +132,6 @@ class TestDatasetManager(unittest.TestCase):
 
     def test_should_remove_unknown_dataset(self):
 
-        data = DatasetManager("./tests/resources/local_data")
+        data = DatasetManager("./tests/resources/local_data", self.os)
         with self.assertRaises(IOError):
             data.remove_dataset("unknown_dataset")
