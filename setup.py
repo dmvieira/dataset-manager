@@ -19,7 +19,6 @@ setup(
     install_requires=[
         "PyYAML>=3.13",
         "pandas>=0.19.2",
-        "requests>=2.21.0",
         "fs<2.5.0",
         "fs.archive<0.7.0"
     ],
