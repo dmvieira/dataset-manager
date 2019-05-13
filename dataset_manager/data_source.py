@@ -5,9 +5,10 @@ data_source
 module to prepare the datasets
 """
 import os
-try:
+import sys
+if sys.version_info[0] == 2:
     import urllib2
-except Exception:
+else:
     from urllib import request as urllib2
 from contextlib import closing
 import zipfile
