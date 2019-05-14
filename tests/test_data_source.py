@@ -63,31 +63,37 @@ class TestDataSource(unittest.TestCase):
 
     def test_download(self):
         test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
-        test_ds._stream_download = Mock()
+        test_ds._download = Mock()
         test_ds.download()
-        test_ds._stream_download.assert_called_with("/local/path")
+        test_ds._download.assert_called_with("/local/path")
 
     def test_zip_download(self):
         test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
-        test_ds._stream_download = Mock()
+        test_ds._download = Mock()
         test_ds.download()
-        test_ds._stream_download.assert_called_with("/local/path.zip")
+        test_ds._download.assert_called_with("/local/path.zip")
 
     def test_dont_download_if_cached(self):
         test_online_cached = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
-        test_online_cached._stream_download = Mock()
+        test_online_cached._download = Mock()
         test_online_cached.is_cached = Mock(return_value=True)
         test_online_cached.download()
-        test_online_cached._stream_download.assert_not_called()
+        test_online_cached._download.assert_not_called()
 
     def test_dont_download_if_local(self):
         test_local = DataSource("test_id", "./source/to/file", "test dataset", "zip json", OSFS("/"))
-        test_local._stream_download = Mock()
+        test_local._download = Mock()
         test_local.download()
-        test_local._stream_download.assert_not_called()
+        test_local._download.assert_not_called()
 
-    def test_is_onlinde_source(self):
+    def test_is_online_source(self):
         test_online = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
+        test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("/"))
+        self.assertTrue(test_online.is_online_source())
+        self.assertFalse(test_local.is_online_source())
+
+    def test_is_ftp_source(self):
+        test_online = DataSource("test_id", "ftp://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
         test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("/"))
         self.assertTrue(test_online.is_online_source())
         self.assertFalse(test_local.is_online_source())

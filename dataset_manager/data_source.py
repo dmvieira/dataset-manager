@@ -5,7 +5,12 @@ data_source
 module to prepare the datasets
 """
 import os
-import requests
+import sys
+if sys.version_info[0] == 2:
+    import urllib2
+else:
+    from urllib import request as urllib2
+from contextlib import closing
 import zipfile
 import logging
 from dataset_manager.__pd_func_map import PD_FUNC_MAP
@@ -36,7 +41,7 @@ class DataSource(object):
         
         Returns:
             boolean: True, if the source is online, otherwise returns False."""
-        return self.source.startswith("http://") or self.source.startswith("https://") 
+        return self.source.startswith("http://") or self.source.startswith("https://") or self.source.startswith("ftp://")
 
     def download(self):
         """Download the dataset from source if the dataset is not cached yet."""
@@ -142,13 +147,10 @@ class DataSource(object):
         download_file_name = self.__get_local_source()
         if self.is_zipped():
             download_file_name = self.__get_zipped_file_name()
-        self._stream_download(download_file_name)
+        self._download(download_file_name)
 
-    def _stream_download(self, local_filename):
-        with requests.get(self.source, stream=True) as r:
-            r.raise_for_status()
-            with self.__fs.open(local_filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192): 
-                    if chunk:
-                        f.write(chunk)
+    def _download(self, local_filename):
+        with closing(urllib2.urlopen(self.source)) as file_stream:
+            with self.__fs.open(local_filename, 'wb') as opened_file:
+                opened_file.write(file_stream.read())
 
