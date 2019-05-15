@@ -1,7 +1,4 @@
-from __future__ import unicode_literals
-
-from unittest import TestCase
-from mock import Mock
+from unittest import TestCase, mock
 from dataset_manager.loaders.base import BaseLoader
 
 class TestBaseLoader(TestCase):

@@ -1,6 +1,4 @@
-from __future__ import unicode_literals
-
-class BaseLoader(object):
+class BaseLoader:
 
     def __getitem__(self, function):
         for method in dir(self):

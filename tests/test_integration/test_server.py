@@ -1,15 +1,8 @@
-from __future__ import unicode_literals
-
 import os
 import socketserver
 import threading
+from http.server import BaseHTTPRequestHandler
 
-from dataset_manager.config import PY3
-
-if PY3:
-    from http.server import BaseHTTPRequestHandler
-else:
-    from BaseHTTPServer import BaseHTTPRequestHandler
 
 class TestHandler(BaseHTTPRequestHandler):
     def do_GET(self):

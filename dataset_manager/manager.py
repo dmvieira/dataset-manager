@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*
-from __future__ import unicode_literals
-
 """Dataset Manager
 
 This module helps to administrate the datasource
@@ -11,8 +9,9 @@ import os
 import logging
 import yaml
 import pandas as pd
-from dataset_manager.data_source import DataSource
 from fs.osfs import OSFS
+
+from dataset_manager.data_source import DataSource
 
 logging.basicConfig(
     level=logging.INFO,

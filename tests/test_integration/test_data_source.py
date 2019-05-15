@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import unittest
 from dataset_manager.data_source import DataSource
 from tests.test_integration.test_server import server

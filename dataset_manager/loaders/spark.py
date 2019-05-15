@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from dataset_manager.loaders.base import BaseLoader
 
 class SparkLoader(BaseLoader):

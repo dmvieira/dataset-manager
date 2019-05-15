@@ -1,25 +1,18 @@
-from __future__ import unicode_literals
-
 """
 data_source
 module to prepare the datasets
 """
-from dataset_manager.config import PY3
-
 import os
-if PY3:
-    from urllib import request as urllib2
-else:
-    import urllib2
-
+from urllib import request
 from contextlib import closing
 import zipfile
 import logging
-from dataset_manager.loaders.pandas import PandasLoader
 from fs.archive import open_archive
 from fs.osfs import OSFS
 
-class DataSource(object):
+from dataset_manager.loaders.pandas import PandasLoader
+
+class DataSource:
     """Class to prepare the dataset"""
     def __init__(self, identifier, source, description, read_format, fs, **kwargs):
         self.source = source
@@ -160,7 +153,7 @@ class DataSource(object):
         self._download(download_file_name)
 
     def _download(self, local_filename):
-        with closing(urllib2.urlopen(self.source)) as file_stream:
+        with closing(request.urlopen(self.source)) as file_stream:
             with self.__fs.open(local_filename, 'wb') as opened_file:
                 opened_file.write(file_stream.read())
 

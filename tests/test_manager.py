@@ -1,12 +1,11 @@
-from __future__ import unicode_literals
-
 import os
 import unittest
 import yaml
 import pandas as pd
-from dataset_manager import DatasetManager
 from pandas.util.testing import assert_frame_equal
 from fs.osfs import OSFS
+
+from dataset_manager import DatasetManager
 
 class TestDatasetManager(unittest.TestCase):
 

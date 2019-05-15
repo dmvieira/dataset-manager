@@ -1,7 +1,6 @@
-from __future__ import unicode_literals
+import pandas as pd
 
 from dataset_manager.loaders.base import BaseLoader
-import pandas as pd
 
 class PandasLoader(BaseLoader):
 
