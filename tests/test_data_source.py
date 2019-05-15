@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import unittest
-from mock import Mock, patch
+from mock import Mock
 from dataset_manager.data_source import DataSource
 import dataset_manager
 import pandas as pd
@@ -11,21 +11,21 @@ from pandas.testing import assert_frame_equal
 class TestDataSource(unittest.TestCase):
 
     def test_construct_data_source(self):
-        test_ds_zip = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
+        test_ds_zip = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("."), local_source = "/local/path")
 
         self.assertEquals("zip",test_ds_zip.compression) 
         self.assertEquals("json",test_ds_zip.format)
 
-        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
+        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("."), local_source = "/local/path")
 
         self.assertEquals(None,test_ds.compression) 
         self.assertEquals("json",test_ds.format)
 
     def test_validate_is_zip(self):
-        test_ds_zip = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
+        test_ds_zip = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("."), local_source = "/local/path")
         self.assertEquals(True,test_ds_zip.is_zipped()) 
     
-        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
+        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("."), local_source = "/local/path")
         self.assertEquals(False,test_ds.is_zipped()) 
 
     def test_validade_zip_cached(self):
@@ -62,39 +62,39 @@ class TestDataSource(unittest.TestCase):
         os.exists.assert_called_with("/local/path")
 
     def test_download(self):
-        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
+        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("."), local_source = "/local/path")
         test_ds._download = Mock()
         test_ds.download()
         test_ds._download.assert_called_with("/local/path")
 
     def test_zip_download(self):
-        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
+        test_ds = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("."), local_source = "/local/path")
         test_ds._download = Mock()
         test_ds.download()
         test_ds._download.assert_called_with("/local/path.zip")
 
     def test_dont_download_if_cached(self):
-        test_online_cached = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("/"), local_source = "/local/path")
+        test_online_cached = DataSource("test_id", "http://source/to/file", "test dataset", "zip json", OSFS("."), local_source = "/local/path")
         test_online_cached._download = Mock()
         test_online_cached.is_cached = Mock(return_value=True)
         test_online_cached.download()
         test_online_cached._download.assert_not_called()
 
     def test_dont_download_if_local(self):
-        test_local = DataSource("test_id", "./source/to/file", "test dataset", "zip json", OSFS("/"))
+        test_local = DataSource("test_id", "./source/to/file", "test dataset", "zip json", OSFS("."))
         test_local._download = Mock()
         test_local.download()
         test_local._download.assert_not_called()
 
     def test_is_online_source(self):
-        test_online = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
-        test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("/"))
+        test_online = DataSource("test_id", "http://source/to/file", "test dataset", "json", OSFS("."), local_source = "/local/path")
+        test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("."))
         self.assertTrue(test_online.is_online_source())
         self.assertFalse(test_local.is_online_source())
 
     def test_is_ftp_source(self):
-        test_online = DataSource("test_id", "ftp://source/to/file", "test dataset", "json", OSFS("/"), local_source = "/local/path")
-        test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("/"))
+        test_online = DataSource("test_id", "ftp://source/to/file", "test dataset", "json", OSFS("."), local_source = "/local/path")
+        test_local = DataSource("test_id", "./source/to/file", "test dataset", "json", OSFS("."))
         self.assertTrue(test_online.is_online_source())
         self.assertFalse(test_local.is_online_source())
 
@@ -127,7 +127,7 @@ class TestDataSource(unittest.TestCase):
         self.assertEqual(expected_online, test_online.get_file_path_to_read())
 
     def test_load_as_pandas_xls(self):
-        test_local = DataSource("train", "./tests/resources/local_data/train.csv", "test dataset", "csv", OSFS("/"))
+        test_local = DataSource("train", "tests/resources/local_data/train.csv", "test dataset", "csv", OSFS("."))
         result = test_local.load_as_pandas()
         expected = pd.DataFrame(
             [["No Name",1],

@@ -4,17 +4,20 @@ from __future__ import unicode_literals
 data_source
 module to prepare the datasets
 """
+from dataset_manager.config import PY3
+
 import os
-import sys
-if sys.version_info[0] == 2:
-    import urllib2
-else:
+if PY3:
     from urllib import request as urllib2
+else:
+    import urllib2
+
 from contextlib import closing
 import zipfile
 import logging
-from dataset_manager.__pd_func_map import PD_FUNC_MAP
+from dataset_manager.loaders.pandas import PandasLoader
 from fs.archive import open_archive
+from fs.osfs import OSFS
 
 class DataSource(object):
     """Class to prepare the dataset"""
@@ -102,10 +105,17 @@ class DataSource(object):
 
         Returns:
             DataFrame: dataframe with dataset.
+        
+        Raises:
+            NotImplementedError: when __fs is not local filesystem
         """
-        file_to_read = self.get_file_path_to_read()
-        read_method = PD_FUNC_MAP[self.format]
-        return read_method(file_to_read, *args, **kwargs)
+        if isinstance(self.__fs, OSFS):
+            file_to_read = self.get_file_path_to_read()
+            loader = PandasLoader()
+            read_method = loader[self.format]
+            return read_method(os.path.join(self.__fs.root_path, file_to_read), *args, **kwargs)
+        else:
+            raise NotImplementedError("Pandas only supports OSFS from pyfilesystem2")
 
     def __get_formats(self, read_format):
         formats_values = read_format.split(" ")

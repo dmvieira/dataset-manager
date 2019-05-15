@@ -107,3 +107,7 @@ venv.bak/
 
 # mac
 .DS_Store
+
+# resources
+tests/test_integration/resources/*
+!tests/test_integration/resources/.keep
