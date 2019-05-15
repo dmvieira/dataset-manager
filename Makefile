@@ -15,10 +15,10 @@ dist: version
 
 version:
 	@echo Old Version
-	@cat dataset_manager/__version__.py
+	@cat version.txt
 	@echo
 	@read -p "Enter New Version:" number; \
-	echo "number = '$$number'" > dataset_manager/__version__.py; \
-	git add dataset_manager/__version__.py; \
+	echo "$$number" > version.txt; \
+	git add version.txt; \
 	git commit -m "Bump $$number"; \
 	git tag $$number
