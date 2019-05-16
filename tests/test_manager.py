@@ -59,9 +59,10 @@ class TestDatasetManager(unittest.TestCase):
         data = DatasetManager("./tests/resources/local_data")
         dataset = {"local_test" : {
             "source": "./tests/resources/local_data/train.csv",
-            "description": "my little dataset local"
+            "description": "my little dataset local",
+            "format": "csv"
             }
-            }
+        }
         self.assertDictEqual(data.get_dataset("local_test"), dataset.get("local_test"))
 
     def test_should_get_dataset_unknown(self):

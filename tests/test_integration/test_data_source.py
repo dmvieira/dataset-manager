@@ -17,7 +17,7 @@ class TestDataSourceIntegration(unittest.TestCase):
         file_name = "test_csv_zipped"
         test_zip_file='http://localhost:8001/local_data/base_train.zip'
 
-        test_ds_zip = DataSource("test_id", test_zip_file, "test dataset", "zip csv", os, local_source = file_name)
+        test_ds_zip = DataSource(os, "test_id", test_zip_file, "test dataset", "csv", "zip", local_source = file_name)
         test_ds_zip.download()
         test_ds_zip.unzip_file()
         df = test_ds_zip.load_as_pandas()

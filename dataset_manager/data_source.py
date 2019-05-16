@@ -12,16 +12,21 @@ from fs.osfs import OSFS
 
 from dataset_manager.loaders.pandas import PandasLoader
 
-class DataSource:
+class DataSource(dict):
     """Class to prepare the dataset"""
-    def __init__(self, identifier, source, description, read_format, fs, **kwargs):
-        self.source = source
-        self.description = description
-        format_and_compression = self.__get_formats(read_format)
-        self.format = format_and_compression.get("format")
-        self.compression = format_and_compression.get("compression")
+    def __init__(self, fs, identifier, source, description, format, compression=None, **kwargs):
+        self["source"] = self.source = source
+        self["description"] = self.description = description
+        self.format = format
+        if format:
+            self["format"] = self.format
+        self.compression = compression
+        if compression:
+            self["compression"] = self.compression
         self.identifier = identifier
         self.extra_args = kwargs
+        for key, val in kwargs.items():
+            self[key] = val
         self.__fs = fs
         self.__logger = logging.getLogger(self.__class__.__name__)
 
@@ -109,15 +114,6 @@ class DataSource:
             return read_method(os.path.join(self.__fs.root_path, file_to_read), *args, **kwargs)
         else:
             raise NotImplementedError("Pandas only supports OSFS from pyfilesystem2")
-
-    def __get_formats(self, read_format):
-        formats_values = read_format.split(" ")
-        if len(formats_values) == 2:
-            return {
-                "compression" : formats_values[0],
-                "format" : formats_values[1]
-            }
-        return {"format" : formats_values[0]}
 
     def __get_zipped_file_name(self):
         if not self.is_online_source():

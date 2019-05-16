@@ -51,11 +51,16 @@ class DatasetManager:
             configuration file.
         """
 
-        datasets = {}
-        config_files = self._get_config_files()
-        for config_file in config_files:
-            datasets.update(self._parser_config_file(config_file))
-        return datasets
+        datasets = self.__get_datasets()
+        data_source = {}
+        for k in datasets:
+            dataset = datasets[k]
+            source = dataset.pop("source")
+            description =  dataset.pop("description")
+            read_format = dataset.pop("format", None)
+            compression = dataset.pop("compression", None)
+            data_source[k] = DataSource(self.__fs, k, source, description, read_format, compression, **dataset)
+        return data_source
 
     def get_dataset(self, identifier):
         """Gets a dataset config by name.
@@ -89,7 +94,7 @@ class DatasetManager:
             lines.append(line)
         return pd.DataFrame(lines)
 
-    def create_dataset(self, identifier, source, description, **kwargs):
+    def create_dataset(self, identifier, source, description, format=None, compression=None, **kwargs):
         """Creates a dataset config file.
 
         Args:
@@ -100,9 +105,12 @@ class DatasetManager:
         """
         dataset_dict = {
             "source": source,
-            "description": description
+            "description": description,
+            "format": format,
+            "compression": compression
             }
         dataset_dict.update(kwargs)
+        dataset_dict = {k: v for k, v in dataset_dict.items() if v is not None}
         self.__logger.info("dataset attributes: \n {}".format(dataset_dict))
         dataset_path = os.path.join(self.__dataset_path, identifier)
         with self.__fs.open("{}.yaml".format(dataset_path), "w") as dataset_file:
@@ -128,7 +136,7 @@ class DatasetManager:
 
     def prepare_dataset(self):
         """Download and unzip all datasets."""
-        all_datasources = self.__get_data_sources()
+        all_datasources = self.get_datasets()
         for k in all_datasources:
             self.__logger.info("Preparing {} ...".format(k))
             datasource = all_datasources[k]
@@ -136,27 +144,13 @@ class DatasetManager:
             datasource.unzip_file()
             self.__logger.info("{} is ready to use!".format(k))
 
-    def load_as_pandas(self, identifier, *args, **kwargs):
-        """Read a dataset using pandas and return a dataframe.
+    def __get_datasets(self):
 
-        Args:
-            identifier: name to identify the dataset.
-            *args and **kwargs: args to pass to the pandas read function.
-        """
-        all_datasources = self.__get_data_sources()
-        datasource = all_datasources[identifier]
-        return datasource.load_as_pandas(*args, **kwargs)
-
-    def __get_data_sources(self):
-        datasets = self.get_datasets()
-        data_source = {}
-        for k in datasets:
-            dataset = datasets[k]
-            source = dataset.pop("source")
-            description =  dataset.pop("description")
-            read_format = dataset.pop("format", "csv")
-            data_source[k] = DataSource(k, source, description, read_format, self.__fs, **dataset)
-        return data_source
+        datasets = {}
+        config_files = self._get_config_files()
+        for config_file in config_files:
+            datasets.update(self._parser_config_file(config_file))
+        return datasets
 
     def _get_config_files(self):
         all_files = self.__fs.listdir(self.__dataset_path)
