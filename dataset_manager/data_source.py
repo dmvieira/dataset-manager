@@ -1,22 +1,18 @@
-from __future__ import unicode_literals
-
 """
 data_source
 module to prepare the datasets
 """
 import os
-import sys
-if sys.version_info[0] == 2:
-    import urllib2
-else:
-    from urllib import request as urllib2
+from urllib import request
 from contextlib import closing
 import zipfile
 import logging
-from dataset_manager.__pd_func_map import PD_FUNC_MAP
 from fs.archive import open_archive
+from fs.osfs import OSFS
 
-class DataSource(object):
+from dataset_manager.loaders.pandas import PandasLoader
+
+class DataSource:
     """Class to prepare the dataset"""
     def __init__(self, identifier, source, description, read_format, fs, **kwargs):
         self.source = source
@@ -102,10 +98,17 @@ class DataSource(object):
 
         Returns:
             DataFrame: dataframe with dataset.
+        
+        Raises:
+            NotImplementedError: when __fs is not local filesystem
         """
-        file_to_read = self.get_file_path_to_read()
-        read_method = PD_FUNC_MAP[self.format]
-        return read_method(file_to_read, *args, **kwargs)
+        if isinstance(self.__fs, OSFS):
+            file_to_read = self.get_file_path_to_read()
+            loader = PandasLoader()
+            read_method = loader[self.format]
+            return read_method(os.path.join(self.__fs.root_path, file_to_read), *args, **kwargs)
+        else:
+            raise NotImplementedError("Pandas only supports OSFS from pyfilesystem2")
 
     def __get_formats(self, read_format):
         formats_values = read_format.split(" ")
@@ -150,7 +153,7 @@ class DataSource(object):
         self._download(download_file_name)
 
     def _download(self, local_filename):
-        with closing(urllib2.urlopen(self.source)) as file_stream:
+        with closing(request.urlopen(self.source)) as file_stream:
             with self.__fs.open(local_filename, 'wb') as opened_file:
                 opened_file.write(file_stream.read())
 

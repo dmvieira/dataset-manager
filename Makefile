@@ -1,4 +1,4 @@
-.PHONY: install test dist
+.PHONY: install test dist version
 
 install:
 	@pip install -r requirements_test.txt
@@ -7,7 +7,18 @@ install:
 test:
 	nosetests -s --with-coverage --cover-inclusive --cover-package=dataset_manager
 
-dist:
+dist: version
+	@git push --tags
+	@git push origin HEAD
 	@python setup.py sdist bdist_wheel
 	@twine upload dist/*
 
+version:
+	@echo Old Version
+	@cat version.txt
+	@echo
+	@read -p "Enter New Version:" number; \
+	echo "$$number" > version.txt; \
+	git add version.txt; \
+	git commit -m "Bump $$number"; \
+	git tag $$number
