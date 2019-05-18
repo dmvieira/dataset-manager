@@ -12,6 +12,7 @@ dist: version
 	@git push origin HEAD
 	@python setup.py sdist bdist_wheel
 	@twine upload dist/*
+	@rm -rf dist/*
 
 version:
 	@echo Old Version
