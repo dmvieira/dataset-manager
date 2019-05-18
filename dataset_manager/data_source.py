@@ -6,6 +6,7 @@ import os
 from urllib import request
 from contextlib import closing
 import zipfile
+import requests
 import logging
 from fs.archive import open_archive
 from fs.osfs import OSFS
@@ -148,8 +149,22 @@ class DataSource(dict):
             download_file_name = self.__get_zipped_file_name()
         self._download(download_file_name)
 
-    def _download(self, local_filename):
+    def _download_http(self, opened_file):
+        CHUNK = 16 * 1024
+        with requests.get(self.source, stream=True) as file_stream:
+            file_stream.raise_for_status()
+            for chunk in file_stream.iter_content(chunk_size=CHUNK):
+                if chunk:
+                    opened_file.write(chunk)
+
+    def _download_ftp(self, opened_file):
         with closing(request.urlopen(self.source)) as file_stream:
-            with self.__fs.open(local_filename, 'wb') as opened_file:
-                opened_file.write(file_stream.read())
+            opened_file.write(file_stream.read())
+
+    def _download(self, local_filename):
+        with self.__fs.open(local_filename, 'wb') as opened_file:
+            if self.source.startswith("ftp"):
+                self._download_ftp(opened_file)
+            else:
+                self._download_http(opened_file)
 
