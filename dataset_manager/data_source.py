@@ -72,7 +72,7 @@ class DataSource(dict):
             self.__create_path_to_extract(path_to_unzip)
             with open_archive(self.__fs, zip_file_name) as archive:
                 for element in archive.listdir("."):
-                    self.__fs.writetext(os.path.join(path_to_unzip, element), archive.readtext(element))
+                    self.__fs.writebytes(os.path.join(path_to_unzip, element), archive.readbytes(element))
             self.__fs.remove(zip_file_name)
             self.__logger.debug("{} unzipped!".format(self.identifier))
         elif not self.__zipfile_exists():
