@@ -1,2 +1,3 @@
 source: ./tests/resources/local_data/train.csv
 description: my little dataset local
+format: csv

@@ -24,7 +24,8 @@ setup(
         "PyYAML>=3.13",
         "pandas>=0.19.2",
         "fs<2.5.0",
-        "fs.archive<0.7.0"
+        "fs.archive<0.7.0",
+        "requests"
     ],
     packages=find_packages(),
 )
