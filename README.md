@@ -94,6 +94,21 @@ manager = DatasetManager(dataset_path, local_path_to_download)
 manager.prepare_datasets()
 ```
 
+#### Using Multiple Filesystems
+
+This manager is integrated with [Pyfilesystem2](https://github.com/PyFilesystem/pyfilesystem2) and you can use all [builtin](https://docs.pyfilesystem.org/en/latest/builtin.html) filesystems or with [third-party](https://www.pyfilesystem.org/page/index-of-filesystems/) extensions or [creating your own](https://docs.pyfilesystem.org/en/latest/extension.html) extension.
+
+With Pyfilesystem2, you can download, extract and manage datasets in any place.
+
+```
+from fs.tempfs import TempFS
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download, TempFS())
+
+manager.prepare_datasets() # all datasets will be downloaded and extracted on temporary files respecting your local_path_to_download hierarchy
+```
+
 #### Get one Dataset
 
 Get Dataset line as dict
@@ -124,7 +139,7 @@ dataset.download()
 
 #### Unzip Dataset
 
-Unzip Dataset based on dataset uri. It works with zip files and others from supported library: fs.archive
+Unzip Dataset based on dataset uri. It works with zip files and others from supported library: [fs.archive](https://pypi.org/project/fs.archive/)
 
 ```
 dataset = manager.get_dataset(identifier)
