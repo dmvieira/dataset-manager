@@ -16,7 +16,6 @@ source: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.
 
 description: this dataset is a test dataset
 
-format: csv
 ```
 
 *identifier*: is the identifier for dataset reference is the file name with *yaml* extension.
@@ -45,52 +44,102 @@ conda install dataset_manager
 
 You can manage your datasets with a list of commands and integrate with [Pandas](https://pandas.pydata.org/) or other data analysis tool.
 
-### List all Datasets
+### Manager functions
+
+#### List all Datasets
 
 Return a List with all Datasets from dataset path
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
 manager.list_datasets()
 ```
 
-### Get one Dataset
-
-Get Dataset line as dict
-
-```
-from dataset_manager import DatasetManager
-
-manager = DatasetManager(dataset_path)
-
-manager.get_dataset(identifier)
-```
-
-### Create a Dataset
+#### Create a Dataset
 
 Create a Dataset with every information you want inside dataset_path defined.
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
 manager.create_dataset(identifier, source, description, **kwargs)
 ```
 
-### Remove a Dataset
+#### Remove a Dataset
 
 Remove Dataset from dataset_path
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
 manager.remove_dataset(identifier)
+```
+
+#### Prepare Datasets
+
+Download and Unzip all Datasets
+
+```
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download)
+
+manager.prepare_datasets()
+```
+
+#### Get one Dataset
+
+Get Dataset line as dict
+
+```
+import pandas as pd
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download)
+
+dataset = manager.get_dataset(identifier)
+
+df = pd.read_csv(dataset.uri)
+```
+
+### Dataset functions
+
+#### Download Dataset
+
+Download Dataset based on source. This only download once because validates cache.
+It works both with HTTP, HTTPS and FTP protocols.
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.download()
+```
+
+#### Unzip Dataset
+
+Unzip Dataset based on dataset uri. It works with zip files and others from supported library: fs.archive
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.unzip()
+```
+
+#### Prepare Dataset
+
+Prepare Dataset combine these two before.
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.prepare()
 ```
 
 ## Contributing
