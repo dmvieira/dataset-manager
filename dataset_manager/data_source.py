@@ -29,7 +29,7 @@ class DataSource(dict):
 
     @property
     def uri(self):
-        return self.__get_file_path_to_read()
+        return os.path.join(self.__fs.root_path, self.__get_file_path_to_read())
 
     def is_cached(self):
         """Check if the dataset is cached on local storage.

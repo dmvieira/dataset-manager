@@ -39,7 +39,7 @@ class DatasetManager:
     def __init__(self, dataset_path, local_path="/tmp", fs=OSFS(".")):
         self.__fs = fs
         self.__dataset_path = dataset_path
-        self.__local_path = download_path
+        self.__local_path = local_path
         self.__logger = logging.getLogger(
             self.__class__.__name__)
 
@@ -58,9 +58,8 @@ class DatasetManager:
             dataset = datasets[k]
             source = dataset.pop("source")
             description =  dataset.pop("description")
-            read_format = dataset.pop("format", None)
             compression = dataset.pop("compression", None)
-            data_source[k] = DataSource(self.__fs, os.path.join(self.__local_path, k), k, source, description, read_format, compression, **dataset)
+            data_source[k] = DataSource(self.__fs, os.path.join(self.__local_path, k), k, source, description, compression, **dataset)
         return data_source
 
     def get_dataset(self, identifier):

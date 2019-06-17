@@ -1,7 +1,7 @@
-import unittest, mock
+import unittest
 import dataset_manager
 import pandas as pd
-import dask.dataframe as dd
+from unittest import mock
 from fs.osfs import OSFS
 from pandas.testing import assert_frame_equal
 
@@ -91,13 +91,14 @@ class TestDataSource(unittest.TestCase):
 
     def test_path_to_read_in_dir(self):
         os = mock.Mock()
+        os.root_path = "."
         os.listdir = mock.Mock(return_value = ["something.json"])
         os.isdir = mock.Mock(return_value = True)
 
         test_local = DataSource(os, "/local/path/test_id", "test_id", "./source/to/file", "test dataset")
         test_online = DataSource(os, "/local/path/test_id2", "test_id2", "http://source/to/file", "test dataset")
 
-        expected_local = "./source/to/file/something.json"
+        expected_local = "././source/to/file/something.json"
         self.assertEqual(expected_local, test_local.uri)
 
         expected_online = "/local/path/test_id2/something.json"
@@ -118,9 +119,10 @@ class TestDataSource(unittest.TestCase):
         self.assertTrue(result)
 
     def test_prepare_dataset(self):
+        os = mock.Mock()
         test_ds = DataSource(os, "/local/path/test_id2", "test_id2", "http://source/to/file", "test dataset")
         test_ds.download = mock.Mock()
         test_ds.unzip_file = mock.Mock()
         test_ds.prepare()
         test_ds.download.assert_called_once()
-        test_ds.unzip.assert_called_once()
+        test_ds.unzip_file.assert_called_once()
