@@ -11,7 +11,7 @@ import yaml
 import pandas as pd
 from fs.osfs import OSFS
 
-from dataset_manager.data_source import DataSource
+from dataset_manager.dataset import DataSet
 
 logging.basicConfig(
     level=logging.INFO,
@@ -53,14 +53,14 @@ class DatasetManager:
         """
 
         datasets = self.__get_datasets()
-        data_source = {}
+        dataset = {}
         for k in datasets:
-            dataset = datasets[k]
-            source = dataset.pop("source")
-            description =  dataset.pop("description")
-            compression = dataset.pop("compression", None)
-            data_source[k] = DataSource(self.__fs, os.path.join(self.__local_path, k), k, source, description, compression, **dataset)
-        return data_source
+            d = datasets[k]
+            source = d.pop("source")
+            description =  d.pop("description")
+            compression = d.pop("compression", None)
+            dataset[k] = DataSet(self.__fs, os.path.join(self.__local_path, k), k, source, description, compression, **d)
+        return dataset
 
     def get_dataset(self, identifier):
         """Gets a dataset config by name.

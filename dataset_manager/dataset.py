@@ -1,5 +1,5 @@
 """
-data_source
+dataset
 module to prepare the datasets
 """
 import os
@@ -11,7 +11,7 @@ import logging
 from fs.archive import open_archive
 from fs.osfs import OSFS
 
-class DataSource(dict):
+class DataSet(dict):
     """Class to prepare the dataset"""
     def __init__(self, fs, local_path, identifier, source, description, compression=None, **kwargs):
         self["source"] = self.source = source
