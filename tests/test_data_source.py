@@ -124,5 +124,5 @@ class TestDataSource(unittest.TestCase):
         test_ds.download = mock.Mock()
         test_ds.unzip_file = mock.Mock()
         test_ds.prepare()
-        test_ds.download.assert_called_once()
-        test_ds.unzip_file.assert_called_once()
+        test_ds.download.assert_called_once_with()
+        test_ds.unzip_file.assert_called_once_with()
