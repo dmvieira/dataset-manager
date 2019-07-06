@@ -16,7 +16,6 @@ source: https://raw.githubusercontent.com/pcsanwald/kaggle-titanic/master/train.
 
 description: this dataset is a test dataset
 
-format: csv
 ```
 
 *identifier*: is the identifier for dataset reference is the file name with *yaml* extension.
@@ -45,52 +44,117 @@ conda install dataset_manager
 
 You can manage your datasets with a list of commands and integrate with [Pandas](https://pandas.pydata.org/) or other data analysis tool.
 
-### List all Datasets
+### Manager functions
 
-Return a List with all Datasets from dataset path
+#### Show all Datasets
 
-```
-from dataset_manager import DatasetManager
-
-manager = DatasetManager(dataset_path)
-
-manager.list_datasets()
-```
-
-### Get one Dataset
-
-Get Dataset line as dict
+Return a table with all Datasets from dataset path
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
-manager.get_dataset(identifier)
+manager.show_datasets()
 ```
 
-### Create a Dataset
+#### Create a Dataset
 
 Create a Dataset with every information you want inside dataset_path defined.
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
 manager.create_dataset(identifier, source, description, **kwargs)
 ```
 
-### Remove a Dataset
+#### Remove a Dataset
 
 Remove Dataset from dataset_path
 
 ```
 from dataset_manager import DatasetManager
 
-manager = DatasetManager(dataset_path)
+manager = DatasetManager(dataset_path, local_path_to_download)
 
 manager.remove_dataset(identifier)
+```
+
+#### Prepare Datasets
+
+Download and Unzip all Datasets
+
+```
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download)
+
+manager.prepare_datasets()
+```
+
+#### Using Multiple Filesystems
+
+This manager is integrated with [Pyfilesystem2](https://github.com/PyFilesystem/pyfilesystem2) and you can use all [builtin](https://docs.pyfilesystem.org/en/latest/builtin.html) filesystems or with [third-party](https://www.pyfilesystem.org/page/index-of-filesystems/) extensions or [creating your own](https://docs.pyfilesystem.org/en/latest/extension.html) extension.
+
+With Pyfilesystem2, you can download, extract and manage datasets in any place.
+
+```
+from fs.tempfs import TempFS
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download, TempFS())
+
+manager.prepare_datasets() # all datasets will be downloaded and extracted on temporary files respecting your local_path_to_download hierarchy
+```
+
+#### Get one Dataset
+
+Get Dataset line as dict
+
+```
+import pandas as pd
+from dataset_manager import DatasetManager
+
+manager = DatasetManager(dataset_path, local_path_to_download)
+
+dataset = manager.get_dataset(identifier)
+
+df = pd.read_csv(dataset.uri)
+```
+
+### Dataset functions
+
+#### Download Dataset
+
+Download Dataset based on source. This only download once because validates cache.
+It works both with HTTP, HTTPS and FTP protocols.
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.download()
+```
+
+#### Unzip Dataset
+
+Unzip Dataset based on dataset uri. It works with zip files and others from supported library: [fs.archive](https://pypi.org/project/fs.archive/)
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.unzip()
+```
+
+#### Prepare Dataset
+
+Prepare Dataset combine these two before.
+
+```
+dataset = manager.get_dataset(identifier)
+
+dataset.prepare()
 ```
 
 ## Contributing

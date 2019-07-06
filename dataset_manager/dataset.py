@@ -1,5 +1,5 @@
 """
-data_source
+dataset
 module to prepare the datasets
 """
 import os
@@ -11,16 +11,11 @@ import logging
 from fs.archive import open_archive
 from fs.osfs import OSFS
 
-from dataset_manager.loaders.pandas import PandasLoader
-
-class DataSource(dict):
+class DataSet(dict):
     """Class to prepare the dataset"""
-    def __init__(self, fs, identifier, source, description, format, compression=None, **kwargs):
+    def __init__(self, fs, local_path, identifier, source, description, compression=None, **kwargs):
         self["source"] = self.source = source
         self["description"] = self.description = description
-        self.format = format
-        if format:
-            self["format"] = self.format
         self.compression = compression
         if compression:
             self["compression"] = self.compression
@@ -29,7 +24,12 @@ class DataSource(dict):
         for key, val in kwargs.items():
             self[key] = val
         self.__fs = fs
+        self.__local_path = local_path
         self.__logger = logging.getLogger(self.__class__.__name__)
+
+    @property
+    def uri(self):
+        return os.path.join(self.__fs.root_path, self.__get_file_path_to_read())
 
     def is_cached(self):
         """Check if the dataset is cached on local storage.
@@ -80,7 +80,11 @@ class DataSource(dict):
         else:
             self.__logger.debug("{} is note zipped.")
 
-    def get_file_path_to_read(self):
+    def prepare(self):
+        self.download()
+        self.unzip_file()
+
+    def __get_file_path_to_read(self):
         """Get the file path where is the downloaded data.
 
         Returns:
@@ -95,32 +99,11 @@ class DataSource(dict):
             files = [local_source.split(".")[0]]
         return files[0]
 
-    def load_as_pandas(self, *args, **kwargs):
-        """Uses the field `format` to read the dataset with pandas
-
-        Args:
-            *args and **kwargs: extra params passed 
-            to pandas read method.
-
-        Returns:
-            DataFrame: dataframe with dataset.
-        
-        Raises:
-            NotImplementedError: when __fs is not local filesystem
-        """
-        if isinstance(self.__fs, OSFS):
-            file_to_read = self.get_file_path_to_read()
-            loader = PandasLoader()
-            read_method = loader[self.format]
-            return read_method(os.path.join(self.__fs.root_path, file_to_read), *args, **kwargs)
-        else:
-            raise NotImplementedError("Pandas only supports OSFS from pyfilesystem2")
-
     def __get_zipped_file_name(self):
         if not self.is_online_source():
             return self.source
         else:
-            return "{}.zip".format(self.__get_local_source()) 
+            return "{}.{}".format(self.__get_local_source(), self.compression) 
 
     def __get_unzip_folder(self):
         if self.is_online_source():
@@ -137,11 +120,7 @@ class DataSource(dict):
             self.__fs.makedir(path_to_extract)
 
     def __get_local_source(self):
-        local_source = self.extra_args.get("local_source")
-        if local_source:
-            return local_source
-        else:
-            raise KeyError("datasource {} must have a 'local_source' field".format(self.identifier))
+        return self.__local_path
 
     def __download_to_local(self):
         download_file_name = self.__get_local_source()

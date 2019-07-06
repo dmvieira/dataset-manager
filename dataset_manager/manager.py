@@ -11,7 +11,8 @@ import yaml
 import pandas as pd
 from fs.osfs import OSFS
 
-from dataset_manager.data_source import DataSource
+from dataset_manager.dataset import DataSet
+from dataset_manager.printer import Printer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,14 +32,15 @@ class DatasetManager:
 
     Each file represents a datadource and must have the attributes:
     `source`, `description`, `format` and
-    `local_source`(to save the downloaded data).
+    `local_path`(to save the downloaded data).
 
     Args:
         dataset_path: path to the datasets configurations.
     """
-    def __init__(self, dataset_path, fs=OSFS(".")):
+    def __init__(self, dataset_path, local_path="/tmp", fs=OSFS(".")):
         self.__fs = fs
         self.__dataset_path = dataset_path
+        self.__local_path = local_path
         self.__logger = logging.getLogger(
             self.__class__.__name__)
 
@@ -52,16 +54,15 @@ class DatasetManager:
         """
 
         datasets = self.__get_datasets()
-        data_source = {}
+        dataset = {}
         for k in datasets:
-            dataset = datasets[k]
-            source = dataset.pop("source")
-            description =  dataset.pop("description")
-            read_format = dataset.pop("format", None)
-            compression = dataset.pop("compression", None)
-            data_source[k] = DataSource(self.__fs, k, source, description, read_format, compression, **dataset)
-        return data_source
-
+            d = datasets[k]
+            source = d.pop("source")
+            description =  d.pop("description")
+            compression = d.pop("compression", None)
+            dataset[k] = DataSet(self.__fs, os.path.join(self.__local_path, k), k, source, description, compression, **d)
+        return dataset
+    
     def get_dataset(self, identifier):
         """Gets a dataset config by name.
 
@@ -80,19 +81,12 @@ class DatasetManager:
         raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
     def show_datasets(self):
-        """Return all datasets configurations as pandas dataframe
+        """Return all datasets configurations as string table
 
         Returns:
-            DataFrame: Pandas Dataframe with all datasets
+            PTable: Printable table in html or ascii
         """
-        datasets = self.get_datasets()
-        lines = []
-        for identifier in datasets:
-            line = dict()
-            line["identifier"] = identifier
-            line.update(datasets[identifier])
-            lines.append(line)
-        return pd.DataFrame(lines)
+        return Printer(self.get_datasets())
 
     def create_dataset(self, identifier, source, description, format=None, compression=None, **kwargs):
         """Creates a dataset config file.
@@ -134,14 +128,13 @@ class DatasetManager:
             identifiers = self.get_datasets()
             raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
-    def prepare_dataset(self):
+    def prepare_datasets(self):
         """Download and unzip all datasets."""
         all_datasources = self.get_datasets()
         for k in all_datasources:
             self.__logger.info("Preparing {} ...".format(k))
             datasource = all_datasources[k]
-            datasource.download()
-            datasource.unzip_file()
+            datasource.prepare()
             self.__logger.info("{} is ready to use!".format(k))
 
     def __get_datasets(self):

@@ -1,8 +1,6 @@
 import os
 import unittest
 import yaml
-import pandas as pd
-from pandas.util.testing import assert_frame_equal
 from fs.osfs import OSFS
 
 from dataset_manager import DatasetManager
@@ -27,7 +25,7 @@ class TestDatasetManager(unittest.TestCase):
                 "source": "http://source/teste",
                 "description": "my little dataset"
                 }
-                }
+            }
 
         data = DatasetManager("./tests/resources/one_data")
         self.assertDictEqual(data.get_datasets(), expected)
@@ -48,7 +46,7 @@ class TestDatasetManager(unittest.TestCase):
             }
         }
  
-        data = DatasetManager("./tests/resources/multiple_data", self.os)
+        data = DatasetManager("./tests/resources/multiple_data", fs=self.os)
         result = list(data.get_datasets().keys())
         result.sort()
         expected = ["one_test", "two_test"]
@@ -59,8 +57,7 @@ class TestDatasetManager(unittest.TestCase):
         data = DatasetManager("./tests/resources/local_data")
         dataset = {"local_test" : {
             "source": "./tests/resources/local_data/train.csv",
-            "description": "my little dataset local",
-            "format": "csv"
+            "description": "my little dataset local"
             }
         }
         self.assertDictEqual(data.get_dataset("local_test"), dataset.get("local_test"))
@@ -72,13 +69,12 @@ class TestDatasetManager(unittest.TestCase):
             data.get_dataset("unknown_test")
     
     def test_should_create_dataset(self):
-        data = DatasetManager(self.trash_dir, self.os)
+        data = DatasetManager(self.trash_dir, fs=self.os)
         identifier = "data_name"
         dataset = {
             "identifier": identifier,
             "description": "description",
             "source": "/tmp/test.csv",
-            "format": "xls"
         }
 
         data.create_dataset(**dataset)
@@ -94,13 +90,12 @@ class TestDatasetManager(unittest.TestCase):
         self.assertEqual(dataset_config.get("source"), dataset["source"])
 
     def test_should_create_dataset_with_custom_data(self):
-        data = DatasetManager(self.trash_dir, self.os)
+        data = DatasetManager(self.trash_dir, fs=self.os)
         identifier = "data_name_custom"
         dataset = {
             "identifier": identifier,
             "description": "description",
-            "source": "/tmp/test.csv",
-            "format": "xls"
+            "source": "/tmp/test.csv"
         }
         data.create_dataset(**dataset)
         self.assertTrue(self.os.isfile("{}/{}.yaml".format(self.trash_dir, identifier)))
@@ -112,11 +107,10 @@ class TestDatasetManager(unittest.TestCase):
         datasource_configs = loaded_dataset.get(identifier)
         self.assertEqual(datasource_configs["description"], dataset["description"])
         self.assertEqual(datasource_configs["source"], dataset["source"])
-        self.assertEqual(datasource_configs["format"], dataset["format"])
 
 
     def test_should_remove_dataset(self):
-        data = DatasetManager(self.trash_dir, self.os)
+        data = DatasetManager(self.trash_dir, fs=self.os)
         identifier = "data_name"
         dataset = {
             "identifier": identifier,
@@ -132,6 +126,6 @@ class TestDatasetManager(unittest.TestCase):
 
     def test_should_remove_unknown_dataset(self):
 
-        data = DatasetManager("./tests/resources/local_data", self.os)
+        data = DatasetManager("./tests/resources/local_data", fs=self.os)
         with self.assertRaises(IOError):
             data.remove_dataset("unknown_dataset")
