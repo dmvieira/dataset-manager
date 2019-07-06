@@ -10,7 +10,7 @@ class Printer:
     def _prepare_table(self):
         fields = set()
         lines = []
-        for identifier in self._datasets:
+        for identifier in sorted(self._datasets.keys()):
             line = dict()
             line["identifier"] = identifier
             line.update(self._datasets[identifier])
