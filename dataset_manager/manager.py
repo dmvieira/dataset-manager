@@ -12,6 +12,7 @@ import pandas as pd
 from fs.osfs import OSFS
 
 from dataset_manager.dataset import DataSet
+from dataset_manager.printer import Printer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,7 +62,7 @@ class DatasetManager:
             compression = d.pop("compression", None)
             dataset[k] = DataSet(self.__fs, os.path.join(self.__local_path, k), k, source, description, compression, **d)
         return dataset
-
+    
     def get_dataset(self, identifier):
         """Gets a dataset config by name.
 
@@ -80,19 +81,12 @@ class DatasetManager:
         raise IOError("No dataset identifier {}. Just: {}".format(identifier, identifiers))
 
     def show_datasets(self):
-        """Return all datasets configurations as pandas dataframe
+        """Return all datasets configurations as string table
 
         Returns:
-            DataFrame: Pandas Dataframe with all datasets
+            PTable: Printable table in html or ascii
         """
-        datasets = self.get_datasets()
-        lines = []
-        for identifier in datasets:
-            line = dict()
-            line["identifier"] = identifier
-            line.update(datasets[identifier])
-            lines.append(line)
-        return pd.DataFrame(lines)
+        return Printer(self.get_datasets())
 
     def create_dataset(self, identifier, source, description, format=None, compression=None, **kwargs):
         """Creates a dataset config file.

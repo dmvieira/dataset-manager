@@ -46,16 +46,16 @@ You can manage your datasets with a list of commands and integrate with [Pandas]
 
 ### Manager functions
 
-#### List all Datasets
+#### Show all Datasets
 
-Return a List with all Datasets from dataset path
+Return a table with all Datasets from dataset path
 
 ```
 from dataset_manager import DatasetManager
 
 manager = DatasetManager(dataset_path, local_path_to_download)
 
-manager.list_datasets()
+manager.show_datasets()
 ```
 
 #### Create a Dataset
