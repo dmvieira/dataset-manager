@@ -8,7 +8,6 @@ for a DataScience projetc.
 import os
 import logging
 import yaml
-import pandas as pd
 from fs.osfs import OSFS
 
 from dataset_manager.dataset import DataSet
