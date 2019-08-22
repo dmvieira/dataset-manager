@@ -9,6 +9,8 @@ Current Support: [![Python 3.5](https://img.shields.io/badge/python-3.5-blue.svg
 
 ## How it Works
 
+[!getting-started](https://github.com/dmvieira/dataset-manager/raw/master/static/getting-started.gif)
+
 This project create a file called *identifier.yaml* in your dataset directory with these fields:
 
 ```
